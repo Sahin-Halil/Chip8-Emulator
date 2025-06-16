@@ -11,8 +11,8 @@ int main()
     std::vector<uint8_t> gameData = { 1, 2, 3, 4 };
     
     Memory RAM;
-    RAM.addToMemory(gameData);
-    RAM.print();
+    RAM.setMemory(gameData);
+    RAM.printMemory();
     
     return 0;
 }

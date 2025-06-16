@@ -6,6 +6,7 @@ private:
     std::vector<uint8_t> workingMemory;
 public:
     Memory();
-    void addToMemory(std::vector<uint8_t>& gameData);
-    void print();
+    void setMemory(std::vector<uint8_t>& gameData);
+    uint8_t getMemory(int i);
+    void printMemory();
 };
