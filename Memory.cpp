@@ -19,7 +19,7 @@ uint8_t Memory::getMemory(int i) {
 void Memory::printMemory() {
 	std::cout << "Printing Contents of Working Memory" << "\n";
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 132; i++) {
 		std::cout << +getMemory(i) << "\n";
 	}
 	

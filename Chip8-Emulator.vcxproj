@@ -128,8 +128,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="loadROM.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="loadROM.h" />
     <ClInclude Include="Memory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
