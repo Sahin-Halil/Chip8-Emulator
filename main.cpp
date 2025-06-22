@@ -2,36 +2,19 @@
 //
 
 #include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <string>
 #include <vector>
 #include <memory>
 #include "Memory.h"
-using namespace std;
-
-
 
 int main()
 {
-    
-    ifstream chip8;
-    chip8.open("Game-Files/IBM-Logo.ch8");
-    if (chip8.is_open()) {
-        std::cout << "Success: chip8 file was opened";
-    }
-    else {
-        std::cout << "Error: chip8 file could not be opened";
-    }
-    
-    /*std::vector<uint8_t> gameData = {};
+    std::vector<uint8_t> gameData = { 1, 2, 3, 4 };
     
     Memory RAM;
     RAM.setMemory(gameData);
     RAM.printMemory();
     
-    return 0;*/
-    
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
