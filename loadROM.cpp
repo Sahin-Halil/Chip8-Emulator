@@ -5,6 +5,7 @@
 
 std::vector<uint8_t> loadROM() {
     std::vector<uint8_t> gameData = {};
+    
     std::ifstream chip8Game;
     chip8Game.open("Game-Files/IBM-Logo.ch8");
 

@@ -4,6 +4,7 @@
 class Memory {
     private:
         std::vector<uint8_t> workingMemory;
+        std::vector<uint8_t> fonts;
     public:
         Memory();
         void setMemory(std::vector<uint8_t>& gameData);
