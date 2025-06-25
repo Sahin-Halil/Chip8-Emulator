@@ -2,11 +2,27 @@
 //
 
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include "Memory.h"
+#include "loadROM.h"
+
 int main()
 {
+    std::vector<uint8_t> gameData = loadROM();
+    uint8_t extraData1 = 100;
+    uint8_t extraData2 = 254;
+    uint8_t extraData3 = 255;
+   
+    Memory RAM;
+    RAM.setMemory(gameData);
+    RAM.updateMemory(132 + 512, extraData1);
+    RAM.updateMemory(133 + 512, extraData2);
+    RAM.updateMemory(134 + 512, extraData3);
+    RAM.printMemory();
     
-
     return 0;
+    
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

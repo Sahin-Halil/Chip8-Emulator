@@ -1,0 +1,59 @@
+#include "Memory.h"
+#include <vector>
+#include <iostream>
+
+Memory::Memory() {
+	workingMemory = std::vector<uint8_t>(4096);
+	fonts = { 
+		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0	  
+		0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+		0xF0, 0x80, 0xF0, 0x80, 0x80  // F 
+	};
+	
+	for (size_t i = 0; i < 80; i++) {
+		workingMemory[i + 80] = fonts[i];
+	}
+}
+
+void Memory::setMemory(std::vector<uint8_t>& gameData) {
+	for (size_t i = 0; i < gameData.size(); i++) {
+		workingMemory[i + 512] = gameData[i];
+	}
+}
+
+uint8_t Memory::getMemory(size_t i) {
+	return workingMemory[i];
+}
+
+void Memory::updateMemory(size_t index, uint8_t& data) {
+	workingMemory[index] = data;
+}
+
+void Memory::printMemory() {
+	std::cout << "Printing Contents of Working Memory" << "\n";
+
+	std::cout << "Printing Standard Fonts" << "\n";
+	for (size_t i = 80; i < 160; i++) {
+		std::cout << +getMemory(i) << "\n";
+	}
+	
+	std::cout << "Printing Contents of ROM" << "\n";
+	for (size_t i = 512; i < 647; i++) {
+		std::cout << +getMemory(i) << "\n";
+	}
+	
+	std::cout << "End of Contents of Working Memory" << "\n";
+}
