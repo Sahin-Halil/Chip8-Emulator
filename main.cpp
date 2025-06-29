@@ -39,15 +39,8 @@ int main()
 
     Memory RAM;
     RAM.setMemory(gameData);
-    RAM.printMemory();
-
-    std::cout << +RAM.getMemory(516) << "\n";
-    std::cout << +RAM.getMemory(517) << "\n";
 
     CPU chip8Processor(RAM);
-    chip8Processor.Fetch();
-    chip8Processor.Fetch();
-    std::cout << +chip8Processor.Fetch();
     
     return 0;
     
