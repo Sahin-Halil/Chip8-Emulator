@@ -7,8 +7,74 @@
 #include "Memory.h"
 #include "CPU.h"
 
-int main()
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+
+
+#define WINDOW_WIDTH 64 * 10
+#define WINDOW_HEIGHT 32 * 10
+
+int main(int argc, char* argv[])
 {
+    SDL_Window* window;                    // Declare a pointer
+    bool done = false;                     // Game condition
+
+    SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL3
+
+    // Create an application window with the following settings:
+    window = SDL_CreateWindow(
+        "Just a chill dude",          // window title
+        WINDOW_WIDTH,                               // width, in pixels
+        WINDOW_HEIGHT,                               // height, in pixels
+        SDL_WINDOW_OPENGL                  // flags - see below
+    );
+   
+    // Check that the window was successfully created
+    if (window == NULL) {
+        // In the case that the window could not be made...
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+    bool gameMap[WINDOW_HEIGHT/10][WINDOW_WIDTH / 10];
+    for (std::size_t i = 0; i < WINDOW_HEIGHT/10; i++) {
+        for (std::size_t j = 0; j < WINDOW_WIDTH/10; j++) {
+            gameMap[i][j] = false;
+        }
+    }
+    while (!done) {
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_EVENT_QUIT:
+                    done = true;
+                    break;
+            }
+        }
+        for (std::size_t i = 0; i < WINDOW_HEIGHT / 10; i++) {
+            for (std::size_t j = 0; j < WINDOW_WIDTH / 10; j++) {
+                if (gameMap[i][j] == false) {
+                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                    SDL_SetRenderScale(renderer, 10, 10);
+                    SDL_RenderPoint(renderer, j, i);
+                }
+                    
+            }
+        }
+        SDL_RenderPresent(renderer);
+    }
+
+    // Close and destroy the window
+    SDL_DestroyWindow(window);
+
+    // Destroy renderer
+    SDL_DestroyRenderer(renderer);
+
+    // Clean up
+    SDL_Quit();
+    return 0;
 
    /* This is what i normally work by when designing the interface of a non - template function:
 
@@ -35,7 +101,7 @@ int main()
     std::cout << +data1[pc] << " " << +data1[pc + 1];*/
 
 
-    std::vector<uint8_t> gameData = loadROM();
+   /* std::vector<uint8_t> gameData = loadROM();
 
     Memory RAM;
     RAM.setMemory(gameData);
@@ -49,7 +115,7 @@ int main()
     chip8Processor.Fetch();
     std::cout << +chip8Processor.Fetch();
     
-    return 0;
+    return 0;*/
     
 }
 
