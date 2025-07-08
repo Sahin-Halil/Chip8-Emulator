@@ -6,6 +6,7 @@
 #include "loadROM.h"
 #include "Memory.h"
 #include "CPU.h"
+#include "TileMap.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -68,6 +69,23 @@ int main(int argc, char* argv[])
     gameMap[20][20] = true;
     gameMap[28][52] = true;
 
+    for (std::size_t i = 0; i < WINDOW_HEIGHT / 10; i++) {
+        for (std::size_t j = 0; j < WINDOW_WIDTH / 10; j++) {
+            SDL_FRect textureRect = { (float) j*10, (float) i*10, 10, 10 };
+            if (gameMap[i][j] == true) {
+                //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderTexture(renderer, whiteTexture, NULL, &textureRect);
+            }
+            else {
+                //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
+            }
+            //SDL_SetRenderScale(renderer, 1, 1);
+            //SDL_RenderPoint(renderer, j, i);
+
+        }
+    }
+    SDL_RenderPresent(renderer);
     while (!done) {
         SDL_Event event;
 
@@ -78,23 +96,6 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        for (std::size_t i = 0; i < WINDOW_HEIGHT / 10; i++) {
-            for (std::size_t j = 0; j < WINDOW_WIDTH / 10; j++) {
-                SDL_FRect textureRect = { (float) j*10, (float) i*10, 10, 10 };
-                if (gameMap[i][j] == true) {
-                    //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                    SDL_RenderTexture(renderer, whiteTexture, NULL, &textureRect);
-                }
-                else {
-                    //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                    SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
-                }
-                //SDL_SetRenderScale(renderer, 1, 1);
-                //SDL_RenderPoint(renderer, j, i);
-
-            }
-        }
-        SDL_RenderPresent(renderer);
     }
 
     // Close and destroy the window
