@@ -1,7 +1,5 @@
 #include "TileMap.h"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <vector>
+#include <iostream>
 
 TileMap::TileMap() {
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -53,10 +51,29 @@ TileMap::TileMap() {
 	}
 }
 
+void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea) {
+	std::size_t x_start = x % TILEMAP_WIDTH;
+	std::size_t x_end = (x_start + 8 < TILEMAP_WIDTH) ? x_start + 8 : TILEMAP_WIDTH;
+	
+	std::size_t y_start = y % TILEMAP_HEIGHT;
+	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
+
+	auto updateAreaRow = updateArea.begin();
+	for (std::size_t i = y_start; i < y_end; i++) {
+		auto updateAreaCol = updateAreaRow->begin();
+		for (std::size_t j = x_start; j < x_end; j++) {
+			tileMap[i][j] = *(updateAreaCol);
+			updateAreaCol++;
+		}
+		updateAreaRow ++;
+	}
+}
+
 void TileMap::Draw() {
 	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
 		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
 			textureRect = { (float) j * RECT_SIZE, (float) i * RECT_SIZE, RECT_SIZE, RECT_SIZE};
+			std::cout << tileMap[i][j] << " ";
 			if (tileMap[i][j] == true) {
 				SDL_RenderTexture(renderer, whiteTexture, NULL, &textureRect);
 			}
@@ -64,11 +81,10 @@ void TileMap::Draw() {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
 		}
+		std::cout << '\n';
 	}
 	SDL_RenderPresent(renderer);
 }
-
-
 
 void TileMap::Destroy() {
 	SDL_DestroyTexture(whiteTexture);

@@ -1,6 +1,7 @@
 // Chip8-Emulator.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include <SDL3/SDL_main.h>
 #include <iostream>
 #include <vector>
 #include "loadROM.h"
@@ -8,109 +9,101 @@
 #include "CPU.h"
 #include "TileMap.h"
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-
-
-#define WINDOW_WIDTH 64 * 10
-#define WINDOW_HEIGHT 32 * 10
 
 int main(int argc, char* argv[])
 {
-    SDL_Window* window;                    // Declare a pointer
-    bool done = false;                     // Game condition
+    
+    
+    TileMap Chip8Game;
 
-    SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL3
+    std::vector<std::vector<bool>> g(5, std::vector<bool>(8, false));
+    
+    // bitmapping for 0
+    g[0][0] = true;
+    g[0][1] = true;
+    g[0][2] = true;
+    g[0][3] = true;
+    g[1][0] = true;
+    g[1][3] = true;
+    g[2][0] = true;
+    g[2][3] = true;
+    g[3][0] = true;
+    g[3][3] = true;
+    g[4][0] = true;
+    g[4][1] = true;
+    g[4][2] = true;
+    g[4][3] = true;
 
-    // Create an application window with the following settings:
-    window = SDL_CreateWindow(
-        "Just a chill dude",          // window title
-        WINDOW_WIDTH,                               // width, in pixels
-        WINDOW_HEIGHT,                               // height, in pixels
-        0                  // flags - see below
-    );
-
-    // Check that the window was successfully created
-    if (window == NULL) {
-        // In the case that the window could not be made...
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-
-    SDL_Texture* whiteTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 10, 10);
-    SDL_Texture* blackTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 10, 10);
-
-    SDL_SetRenderTarget(renderer, whiteTexture);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_SetRenderTarget(renderer, blackTexture);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_SetRenderTarget(renderer, NULL);
-
-    bool gameMap[WINDOW_HEIGHT / 10][WINDOW_WIDTH / 10];
-    for (std::size_t i = 0; i < WINDOW_HEIGHT / 10; i++) {
-        for (std::size_t j = 0; j < WINDOW_WIDTH / 10; j++) {
-            gameMap[i][j] = false;
+    
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < g[i].size(); j++)
+        {
+            //g[i][j] = j % 2;
+            std::cout << g[i][j] << " ";
         }
+        std::cout << '\n';
     }
 
-    gameMap[0][0] = true;
-    gameMap[31][63] = true;
-    gameMap[20][30] = true;
-    gameMap[30][20] = true;
-    gameMap[3][5] = true;
-    gameMap[30][50] = true;
-    gameMap[16][31] = true;
-    gameMap[20][20] = true;
-    gameMap[28][52] = true;
-
-    for (std::size_t i = 0; i < WINDOW_HEIGHT / 10; i++) {
-        for (std::size_t j = 0; j < WINDOW_WIDTH / 10; j++) {
-            SDL_FRect textureRect = { (float) j*10, (float) i*10, 10, 10 };
-            if (gameMap[i][j] == true) {
-                //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_RenderTexture(renderer, whiteTexture, NULL, &textureRect);
-            }
-            else {
-                //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
-            }
-            //SDL_SetRenderScale(renderer, 1, 1);
-            //SDL_RenderPoint(renderer, j, i);
-
-        }
-    }
-    SDL_RenderPresent(renderer);
-    while (!done) {
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_EVENT_QUIT:
-                done = true;
-                break;
+    Chip8Game.updateMap(5, 20, 5, g);
+    Chip8Game.Draw();
+    SDL_Delay(10000);
+    // reverting changes
+    g[0][0] = false;
+    g[0][1] = false;
+    g[0][2] = false;
+    g[0][3] = false;
+    g[1][0] = false;
+    g[1][3] = false;
+    g[2][0] = false;
+    g[2][3] = false;
+    g[3][0] = false;
+    g[3][3] = false;
+    g[4][0] = false;
+    g[4][1] = false;
+    g[4][2] = false;
+    g[4][3] = false;
+    // bitmapping for 1
+    g[0][2] = true;
+    g[1][1] = true;
+    g[1][2] = true;
+    g[2][2] = true;
+    g[3][2] = true;
+    g[4][1] = true;
+    g[4][2] = true;
+    g[4][3] = true;
+    Chip8Game.updateMap(5, 20, 5, g);
+    Chip8Game.Draw();
+    SDL_Event e;
+    bool quit = false;
+    while (quit == false)
+    {
+        //Get event data
+        while (SDL_PollEvent(&e) == true)
+        {
+            //If event is quit type
+            if (e.type == SDL_EVENT_QUIT)
+            {
+                //End the main loop
+                quit = true;
             }
         }
+        //Chip8Game.Draw();
     }
-
-    // Close and destroy the window
-    SDL_DestroyWindow(window);
-
-    // Destroy renderer
-    SDL_DestroyRenderer(renderer);
-
-    // Destroy Textures
-    SDL_DestroyTexture(whiteTexture);
-    SDL_DestroyTexture(blackTexture);
-
-    // Clean up
-    SDL_Quit();
+    
+    Chip8Game.Destroy();
     return 0;
+
+    //uint8_t val = 5;
+    //bool arr[8] = {};
+    //std::size_t i = 0;
+    //for (unsigned int mask = 0x80; mask != 0; mask >>= 1) {
+    //    arr[i] = val & mask;
+    //    i += 1;
+    //}
+    //for (std::size_t k = 0; k < 8; k++) {
+    //    std::cout << arr[k] << "\n";
+    //}
 
     /* This is what i normally work by when designing the interface of a non - template function:
 

@@ -1,5 +1,4 @@
 #include "CPU.h"
-#include "Memory.h"
 
 CPU::CPU(Memory& ram) {
 	PC = 512;

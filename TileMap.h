@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
+#include <vector>
 
 #define WINDOW_WIDTH 64 * 10
 #define WINDOW_HEIGHT 32 * 10
@@ -22,7 +22,7 @@ class TileMap
 
 	public:
 		TileMap();
-		void updateMap();
+		void updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea);
 		void Draw();
 		void Destroy();
 };
