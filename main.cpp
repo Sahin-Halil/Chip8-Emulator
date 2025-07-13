@@ -16,10 +16,41 @@ int main(int argc, char* argv[])
     
     TileMap Chip8Game;
 
-    std::vector<std::vector<bool>> g(5, std::vector<bool>(8, false));
+    //uint8_t val = 5;
+    //bool arr[8] = {};
+    //std::size_t i = 0;
+    //for (unsigned int mask = 0x80; mask != 0; mask >>= 1) {
+    //    arr[i] = val & mask;
+    //    i += 1;
+    //}
+    //for (std::size_t k = 0; k < 8; k++) {
+    //    std::cout << arr[k] << "\n";
+    //}
+    // 0xF0, 0x90, 0x90, 0x90, 0xF0 = 0
+    std::size_t x = 28;
+    std::size_t y = 14;
+    std::size_t N = 5;
+
+    std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
+    std::vector<uint8_t> data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+    auto dataIndex = data.begin();
+    for (std::size_t i = 0; i < N; i++) {
+        
+        std::uint8_t val = *(dataIndex);
+        //std::cout << +val << " ";
+        std::uint8_t mask = 0x80;
+        for (std::size_t j = 0; j < 8; j++) {
+            g[i][j] = mask & val;
+            //std::cout << +mask << " ";
+            mask >>= 1;
+            //std::cout << g[i][j];
+        }
+        //std::cout << "\n";
+        dataIndex++;
+    }
     
     // bitmapping for 0
-    g[0][0] = true;
+    /*g[0][0] = true;
     g[0][1] = true;
     g[0][2] = true;
     g[0][3] = true;
@@ -32,24 +63,25 @@ int main(int argc, char* argv[])
     g[4][0] = true;
     g[4][1] = true;
     g[4][2] = true;
-    g[4][3] = true;
+    g[4][3] = true;*/
 
     
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < g[i].size(); j++)
         {
             //g[i][j] = j % 2;
+            //std::cout << "I was here";
             std::cout << g[i][j] << " ";
         }
         std::cout << '\n';
     }
 
-    Chip8Game.updateMap(5, 20, 5, g);
+    Chip8Game.updateMap(x, y, N, g);
     Chip8Game.Draw();
-    SDL_Delay(10000);
+    //SDL_Delay(10000);
     // reverting changes
-    g[0][0] = false;
+    /*g[0][0] = false;
     g[0][1] = false;
     g[0][2] = false;
     g[0][3] = false;
@@ -62,9 +94,9 @@ int main(int argc, char* argv[])
     g[4][0] = false;
     g[4][1] = false;
     g[4][2] = false;
-    g[4][3] = false;
+    g[4][3] = false;*/
     // bitmapping for 1
-    g[0][2] = true;
+    /*g[0][2] = true;
     g[1][1] = true;
     g[1][2] = true;
     g[2][2] = true;
@@ -73,7 +105,7 @@ int main(int argc, char* argv[])
     g[4][2] = true;
     g[4][3] = true;
     Chip8Game.updateMap(5, 20, 5, g);
-    Chip8Game.Draw();
+    Chip8Game.Draw();*/
     SDL_Event e;
     bool quit = false;
     while (quit == false)
@@ -94,16 +126,6 @@ int main(int argc, char* argv[])
     Chip8Game.Destroy();
     return 0;
 
-    //uint8_t val = 5;
-    //bool arr[8] = {};
-    //std::size_t i = 0;
-    //for (unsigned int mask = 0x80; mask != 0; mask >>= 1) {
-    //    arr[i] = val & mask;
-    //    i += 1;
-    //}
-    //for (std::size_t k = 0; k < 8; k++) {
-    //    std::cout << arr[k] << "\n";
-    //}
 
     /* This is what i normally work by when designing the interface of a non - template function:
 

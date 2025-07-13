@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <vector>
 
+// Constants for TileMap
 #define WINDOW_WIDTH 64 * 10
 #define WINDOW_HEIGHT 32 * 10
 #define TILEMAP_WIDTH 64 
@@ -13,6 +14,7 @@
 class TileMap
 {
 	private:
+		// Game window/tilemap essentials 
 		SDL_Window* window;
 		SDL_Renderer* renderer;
 		SDL_Texture* whiteTexture;
@@ -21,9 +23,9 @@ class TileMap
 		bool tileMap[TILEMAP_HEIGHT][TILEMAP_WIDTH];
 
 	public:
-		TileMap();
-		void updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea);
-		void Draw();
-		void Destroy();
+		TileMap(); // Initialises tilemap and game window
+		void updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea); // Takes starting positions, size and data to update tilemap with
+		void Draw(); // Ouputs latest contents of tilemap to game window
+		void Destroy(); // Destroys game window during code termination
 };
 
