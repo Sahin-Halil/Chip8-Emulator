@@ -101,6 +101,7 @@ int main(int argc, char* argv[])
     g[4][1] = true;
     g[4][2] = true;
     g[4][3] = true;*/
+    /*Chip8Game.resetMap();
     for (std::size_t i = 0; i < N; i++) {
         for (std::size_t j = 0; j < 8; j++) {
             g[i][j] = false;
@@ -116,7 +117,7 @@ int main(int argc, char* argv[])
         }
     }
     Chip8Game.updateMap(x, y, N, g);
-    Chip8Game.Draw();
+    Chip8Game.Draw();*/
     SDL_Event e;
     bool quit = false;
     while (quit == false)

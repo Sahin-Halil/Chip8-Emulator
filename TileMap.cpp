@@ -51,11 +51,7 @@ TileMap::TileMap() {
 	SDL_SetRenderTarget(renderer, NULL);
 
 	// Initialising all values in tilemap to false, false = black and true = white
-	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
-		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
-			tileMap[i][j] = false;
-		}
-	}
+	resetMap();
 }
 
 // Updates tilemap with a given starting (x, y), size and contents to update tilemap with
@@ -102,6 +98,16 @@ void TileMap::Draw() {
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);
+}
+
+// Nested loop to set every pixel in tilemap to false (off)
+void TileMap::resetMap() {
+	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
+		for (std::size_t j = 0; j < TILEMAP_HEIGHT; j++) {
+			// tilemap pixel is reset on this line
+			tileMap[i][j] = false;
+		}
+	}
 }
 
 // Destroys all game window relevant attributes in order to prevent memory leaks
