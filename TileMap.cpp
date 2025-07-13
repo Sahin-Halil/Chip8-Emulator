@@ -75,7 +75,7 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 		auto updateAreaCol = updateAreaRow->begin();
 		for (std::size_t j = x_start; j < x_end; j++) {
 			// Value of tilemap is set to either true or false
-			tileMap[i][j] = *(updateAreaCol);
+			tileMap[i][j] ^= *(updateAreaCol);
 			updateAreaCol++;
 		}
 		updateAreaRow ++;

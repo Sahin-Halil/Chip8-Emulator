@@ -27,16 +27,15 @@ int main(int argc, char* argv[])
     //    std::cout << arr[k] << "\n";
     //}
     // 0xF0, 0x90, 0x90, 0x90, 0xF0 = 0
-    std::size_t x = 28;
-    std::size_t y = 14;
+    std::size_t x = 20;
+    std::size_t y = 50;
     std::size_t N = 5;
 
     std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
     std::vector<uint8_t> data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
-    auto dataIndex = data.begin();
     for (std::size_t i = 0; i < N; i++) {
         
-        std::uint8_t val = *(dataIndex);
+        std::uint8_t val = data[i];
         //std::cout << +val << " ";
         std::uint8_t mask = 0x80;
         for (std::size_t j = 0; j < 8; j++) {
@@ -46,7 +45,6 @@ int main(int argc, char* argv[])
             //std::cout << g[i][j];
         }
         //std::cout << "\n";
-        dataIndex++;
     }
     
     // bitmapping for 0
@@ -65,7 +63,6 @@ int main(int argc, char* argv[])
     g[4][2] = true;
     g[4][3] = true;*/
 
-    
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < g[i].size(); j++)
@@ -79,7 +76,7 @@ int main(int argc, char* argv[])
 
     Chip8Game.updateMap(x, y, N, g);
     Chip8Game.Draw();
-    //SDL_Delay(10000);
+    SDL_Delay(10000);
     // reverting changes
     /*g[0][0] = false;
     g[0][1] = false;
@@ -103,9 +100,23 @@ int main(int argc, char* argv[])
     g[3][2] = true;
     g[4][1] = true;
     g[4][2] = true;
-    g[4][3] = true;
-    Chip8Game.updateMap(5, 20, 5, g);
-    Chip8Game.Draw();*/
+    g[4][3] = true;*/
+    for (std::size_t i = 0; i < N; i++) {
+        for (std::size_t j = 0; j < 8; j++) {
+            g[i][j] = false;
+        }
+    }
+    data = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
+    for (std::size_t i = 0; i < N; i++) {
+        std::uint8_t val = data[i];
+        std::uint8_t mask = 0x80;
+        for (std::size_t j = 0; j < 8; j++) {
+            g[i][j] = mask & val;
+            mask >>= 1;
+        }
+    }
+    Chip8Game.updateMap(x, y, N, g);
+    Chip8Game.Draw();
     SDL_Event e;
     bool quit = false;
     while (quit == false)
