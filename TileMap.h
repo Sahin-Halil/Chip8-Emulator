@@ -22,11 +22,16 @@ class TileMap
 		SDL_FRect textureRect;
 		bool tileMap[TILEMAP_HEIGHT][TILEMAP_WIDTH];
 
+		// Game loop essentials
+		int frameRate;
+		uint64_t timeBefore;
+
 	public:
 		TileMap(); // Initialises tilemap and game window
 		void updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea); // Takes starting positions, size and data to update tilemap with
 		void Draw(); // Ouputs latest contents of tilemap to game window
 		void resetMap(); // Resets all pixels on tilemap back to false (off)
 		void Destroy(); // Destroys game window during code termination
+		void remainingTime(); // Wait until time is up before starting next loop cycle (frame)
 };
 

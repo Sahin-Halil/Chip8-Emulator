@@ -118,13 +118,12 @@ int main(int argc, char* argv[])
     }
     Chip8Game.updateMap(x, y, N, g);
     Chip8Game.Draw();*/
-    int frameRate = 1;
-    uint64_t timeBefore = 0;
+    std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
+    std::vector<uint8_t> data = {};
     SDL_Event e;
     bool quit = false;
     while (quit == false)
     {
-        timeBefore = SDL_GetTicks();
         //Get event data
         while (SDL_PollEvent(&e) == true)
         {
@@ -136,8 +135,12 @@ int main(int argc, char* argv[])
             }
         }
         Chip8Game.resetMap();
-        std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
-        std::vector<uint8_t> data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+        for (std::size_t i = 0; i < N; i++) {
+            for (std::size_t j = 0; j < 8; j++) {
+                g[i][j] = false;
+            }
+        }
+        data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
         for (std::size_t i = 0; i < N; i++) {
             std::uint8_t val = data[i];
             std::uint8_t mask = 0x80;
@@ -148,10 +151,7 @@ int main(int argc, char* argv[])
         }
         Chip8Game.updateMap(x, y, N, g);
         Chip8Game.Draw();
-        while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
-            continue;
-        }
-        timeBefore = SDL_GetTicks();
+        Chip8Game.remainingTime();
         Chip8Game.resetMap();
         for (std::size_t i = 0; i < N; i++) {
             for (std::size_t j = 0; j < 8; j++) {
@@ -170,9 +170,7 @@ int main(int argc, char* argv[])
         Chip8Game.updateMap(x, y, N, g);
         Chip8Game.Draw();
         //SDL_Delay(5000);
-        while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
-            continue;
-        }
+        Chip8Game.remainingTime();
     }
     
     Chip8Game.Destroy();

@@ -52,6 +52,12 @@ TileMap::TileMap() {
 
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
+
+	// Initialising speed of loop execution
+	frameRate = 1;
+	
+	// Initialising current time stamp
+	timeBefore = 0;
 }
 
 // Updates tilemap with a given starting (x, y), size and contents to update tilemap with
@@ -84,6 +90,7 @@ void TileMap::Draw() {
 		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
 			// rectangle is used to help set position of texture within game window
 			textureRect = { (float) j * RECT_SIZE, (float) i * RECT_SIZE, RECT_SIZE, RECT_SIZE};
+
 			std::cout << tileMap[i][j] << " ";
 			
 			// If cell in tilemap is set to true, then white is shown, else black
@@ -120,4 +127,12 @@ void TileMap::Destroy() {
 
 	// End program once all necessary attributes have been destroyed
 	SDL_Quit();
+}
+
+// Keeps looping until enough time has passed
+void TileMap::remainingTime() {
+	while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
+		continue;
+	}
+	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
 }
