@@ -90,7 +90,6 @@ int main(int argc, char* argv[])
       std::cout << +chip8Processor.Fetch();
 
       return 0;*/
-
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
