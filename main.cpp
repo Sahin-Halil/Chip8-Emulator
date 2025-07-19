@@ -16,133 +16,24 @@ int main(int argc, char* argv[])
     
     TileMap Chip8Game;
 
-    //uint8_t val = 5;
-    //bool arr[8] = {};
-    //std::size_t i = 0;
-    //for (unsigned int mask = 0x80; mask != 0; mask >>= 1) {
-    //    arr[i] = val & mask;
-    //    i += 1;
-    //}
-    //for (std::size_t k = 0; k < 8; k++) {
-    //    std::cout << arr[k] << "\n";
-    //}
-    // 0xF0, 0x90, 0x90, 0x90, 0xF0 = 0
     std::size_t x = 20;
     std::size_t y = 50;
     std::size_t N = 5;
-
-    //std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
-    //std::vector<uint8_t> data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
-    //for (std::size_t i = 0; i < N; i++) {
-    //    
-    //    std::uint8_t val = data[i];
-    //    //std::cout << +val << " ";
-    //    std::uint8_t mask = 0x80;
-    //    for (std::size_t j = 0; j < 8; j++) {
-    //        g[i][j] = mask & val;
-    //        //std::cout << +mask << " ";
-    //        mask >>= 1;
-    //        //std::cout << g[i][j];
-    //    }
-    //    //std::cout << "\n";
-    //}
-    
-    // bitmapping for 0
-    /*g[0][0] = true;
-    g[0][1] = true;
-    g[0][2] = true;
-    g[0][3] = true;
-    g[1][0] = true;
-    g[1][3] = true;
-    g[2][0] = true;
-    g[2][3] = true;
-    g[3][0] = true;
-    g[3][3] = true;
-    g[4][0] = true;
-    g[4][1] = true;
-    g[4][2] = true;
-    g[4][3] = true;*/
-
-    //for (int i = 0; i < N; i++)
-    //{
-    //    for (int j = 0; j < g[i].size(); j++)
-    //    {
-    //        //g[i][j] = j % 2;
-    //        //std::cout << "I was here";
-    //        std::cout << g[i][j] << " ";
-    //    }
-    //    std::cout << '\n';
-    //}
-
-    /*Chip8Game.updateMap(x, y, N, g);
-    Chip8Game.Draw();
-    SDL_Delay(10000);*/
-    // reverting changes
-    /*g[0][0] = false;
-    g[0][1] = false;
-    g[0][2] = false;
-    g[0][3] = false;
-    g[1][0] = false;
-    g[1][3] = false;
-    g[2][0] = false;
-    g[2][3] = false;
-    g[3][0] = false;
-    g[3][3] = false;
-    g[4][0] = false;
-    g[4][1] = false;
-    g[4][2] = false;
-    g[4][3] = false;*/
-    // bitmapping for 1
-    /*g[0][2] = true;
-    g[1][1] = true;
-    g[1][2] = true;
-    g[2][2] = true;
-    g[3][2] = true;
-    g[4][1] = true;
-    g[4][2] = true;
-    g[4][3] = true;*/
-    /*Chip8Game.resetMap();
-    for (std::size_t i = 0; i < N; i++) {
-        for (std::size_t j = 0; j < 8; j++) {
-            g[i][j] = false;
-        }
-    }
-    data = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
-    for (std::size_t i = 0; i < N; i++) {
-        std::uint8_t val = data[i];
-        std::uint8_t mask = 0x80;
-        for (std::size_t j = 0; j < 8; j++) {
-            g[i][j] = mask & val;
-            mask >>= 1;
-        }
-    }
-    Chip8Game.updateMap(x, y, N, g);
-    Chip8Game.Draw();*/
     std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
     std::vector<uint8_t> data = {};
-    SDL_Event e;
+    std::vector<uint8_t> vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
     bool quit = false;
     while (quit == false)
     {
-        //Get event data
-        while (SDL_PollEvent(&e) == true)
-        {
-            //If event is quit type
-            if (e.type == SDL_EVENT_QUIT)
-            {
-                //End the main loop
-                quit = true;
-            }
-        }
         Chip8Game.resetMap();
         for (std::size_t i = 0; i < N; i++) {
             for (std::size_t j = 0; j < 8; j++) {
                 g[i][j] = false;
             }
         }
-        data = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+        Chip8Game.getEvent(quit, vx);
         for (std::size_t i = 0; i < N; i++) {
-            std::uint8_t val = data[i];
+            std::uint8_t val = vx[i];
             std::uint8_t mask = 0x80;
             for (std::size_t j = 0; j < 8; j++) {
                 g[i][j] = mask & val;
@@ -152,25 +43,7 @@ int main(int argc, char* argv[])
         Chip8Game.updateMap(x, y, N, g);
         Chip8Game.Draw();
         Chip8Game.remainingTime();
-        Chip8Game.resetMap();
-        for (std::size_t i = 0; i < N; i++) {
-            for (std::size_t j = 0; j < 8; j++) {
-                g[i][j] = false;
-            }
-        }
-        data = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
-        for (std::size_t i = 0; i < N; i++) {
-            std::uint8_t val = data[i];
-            std::uint8_t mask = 0x80;
-            for (std::size_t j = 0; j < 8; j++) {
-                g[i][j] = mask & val;
-                mask >>= 1;
-            }
-        }
-        Chip8Game.updateMap(x, y, N, g);
-        Chip8Game.Draw();
-        //SDL_Delay(5000);
-        Chip8Game.remainingTime();
+       
     }
     
     Chip8Game.Destroy();

@@ -54,7 +54,7 @@ TileMap::TileMap() {
 	resetMap();
 
 	// Initialising speed of loop execution
-	frameRate = 1;
+	frameRate = 700;
 	
 	// Initialising current time stamp
 	timeBefore = 0;
@@ -90,8 +90,6 @@ void TileMap::Draw() {
 		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
 			// rectangle is used to help set position of texture within game window
 			textureRect = { (float) j * RECT_SIZE, (float) i * RECT_SIZE, RECT_SIZE, RECT_SIZE};
-
-			std::cout << tileMap[i][j] << " ";
 			
 			// If cell in tilemap is set to true, then white is shown, else black
 			if (tileMap[i][j] == true) {
@@ -101,7 +99,6 @@ void TileMap::Draw() {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
 		}
-		std::cout << '\n';
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);
@@ -135,4 +132,71 @@ void TileMap::remainingTime() {
 		continue;
 	}
 	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
+}
+
+// Return the current hex value key being pressed down
+void TileMap::getEvent(bool& quit, std::vector<uint8_t>& vx) {
+	SDL_Event e;
+
+	//Get event data
+	while (SDL_PollEvent(&e) == true)
+	{
+		switch (e.type) {
+			// checks if exit button is pressed	
+			case SDL_EVENT_QUIT: 
+					quit = true; // This will set quit to true (game loop ends)
+			// All possible key presses (0-F)
+			case SDL_EVENT_KEY_DOWN:
+				switch (e.key.scancode) {
+					case SDL_SCANCODE_1:
+						vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
+						break;
+					case SDL_SCANCODE_2:
+						vx = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
+						break;
+					case SDL_SCANCODE_3:
+						vx = { 0xF0, 0x10, 0xF0, 0x10, 0xF0 };
+						break;
+					case SDL_SCANCODE_4:
+						vx = { 0xF0, 0x80, 0x80, 0x80, 0xF0 };
+						break;
+					case SDL_SCANCODE_Q:
+						vx = { 0x90, 0x90, 0xF0, 0x10, 0x10 };
+						break;
+					case SDL_SCANCODE_W:
+						vx = { 0xF0, 0x80, 0xF0, 0x10, 0xF0 };
+						break;
+					case SDL_SCANCODE_E:
+						vx = { 0xF0, 0x80, 0xF0, 0x90, 0xF0 };
+						break;
+					case SDL_SCANCODE_R:
+						vx = { 0xE0, 0x90, 0x90, 0x90, 0xE0 };
+						break;
+					case SDL_SCANCODE_A:
+						vx = { 0xF0, 0x10, 0x20, 0x40, 0x40 };
+						break;
+					case SDL_SCANCODE_S:
+						vx = { 0xF0, 0x90, 0xF0, 0x90, 0xF0 };
+						break;
+					case SDL_SCANCODE_D:
+						vx = { 0xF0, 0x90, 0xF0, 0x10, 0xF0 };
+						break;
+					case SDL_SCANCODE_F:
+						vx = { 0xF0, 0x80, 0xF0, 0x80, 0xF0 };
+						break;
+					case SDL_SCANCODE_Z:
+						vx = { 0xF0, 0x90, 0xF0, 0x90, 0x90 };
+						break;
+					case SDL_SCANCODE_X:
+						vx = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+						break;
+					case SDL_SCANCODE_C:
+						vx = { 0xE0, 0x90, 0xE0, 0x90, 0xE0 };
+						break;
+					case SDL_SCANCODE_V:
+						vx = { 0xF0, 0x80, 0xF0, 0x80, 0x80 };
+						break;
+					}
+		}
+	}
 }
