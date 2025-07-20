@@ -136,7 +136,11 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="loadROM.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="TileMap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Chip8-Emulator.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,9 +10,11 @@ class CPU {
 		//delayTimer;
 		//soundTimer;
 		//variableRegisters;
+		bool quit;
 	public:
 		CPU(Memory& ram);
 		//Run();
 		uint16_t Fetch();
+		void Run();
 };
 

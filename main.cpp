@@ -1,6 +1,5 @@
 // Chip8-Emulator.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
 #include <SDL3/SDL_main.h>
 #include <iostream>
 #include <vector>
@@ -10,11 +9,11 @@
 #include "TileMap.h"
 
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     
     
-    TileMap Chip8Game;
+    /*TileMap Chip8Game;
 
     std::size_t x = 20;
     std::size_t y = 50;
@@ -47,7 +46,7 @@ int main(int argc, char* argv[])
     }
     
     Chip8Game.Destroy();
-    return 0;
+    return 0;*/
 
 
     /* This is what i normally work by when designing the interface of a non - template function:
@@ -62,34 +61,16 @@ int main(int argc, char* argv[])
 
      Pass by non - const reference when the value is expensive to copy and the function wants to modify the value referred to and NULL would not be a valid value if a pointer was used instead.*/
 
-     /*uint8_t example1 = 254;
-     uint8_t example2 = 30;
-     uint16_t res = (example1 << 8) | example2;
-     std::cout << +example1 << "\n";
-     std::cout << +res << "\n";*/
-
-     /*std::vector<uint8_t> data1 = {1, 2, 3, 4};
-     uint16_t pc = 0;
-     std::cout << +data1[pc] << " " << +data1[pc + 1] << "\n";
-     pc += 2;
-     std::cout << +data1[pc] << " " << +data1[pc + 1];*/
-
-
-     /* std::vector<uint8_t> gameData = loadROM();
+      std::vector<uint8_t> gameData = loadROM();
 
       Memory RAM;
       RAM.setMemory(gameData);
       RAM.printMemory();
 
-      std::cout << +RAM.getMemory(516) << "\n";
-      std::cout << +RAM.getMemory(517) << "\n";
+      CPU Chip8CPU(RAM);
+      //Chip8CPU.Run();
 
-      CPU chip8Processor(RAM);
-      chip8Processor.Fetch();
-      chip8Processor.Fetch();
-      std::cout << +chip8Processor.Fetch();
-
-      return 0;*/
+      return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
