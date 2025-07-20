@@ -15,6 +15,7 @@ class CPU {
 		CPU(Memory& ram);
 		//Run();
 		uint16_t Fetch();
+		std::vector<uint8_t> Decode(uint16_t instruction);
 		void Run();
 };
 

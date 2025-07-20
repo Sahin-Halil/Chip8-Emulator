@@ -65,11 +65,11 @@ int main(int argc, char *argv[])
 
       Memory RAM;
       RAM.setMemory(gameData);
-      RAM.printMemory();
+      //RAM.printMemory();
 
       CPU Chip8CPU(RAM);
-      //Chip8CPU.Run();
-
+      Chip8CPU.Run();
+     
       return 0;
 }
 
