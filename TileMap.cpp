@@ -98,7 +98,9 @@ void TileMap::Draw() {
 			else {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
+			//std::cout << tileMap[i][j];
 		}
+		//std::cout << "\n";
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);
@@ -135,9 +137,9 @@ void TileMap::remainingTime() {
 }
 
 // Return the current hex value key being pressed down
-void TileMap::getEvent(bool& quit, std::vector<uint8_t>& vx) {
+void TileMap::getEvent(bool& quit) {
 	SDL_Event e;
-
+	std::vector <uint8_t> vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
 	//Get event data
 	while (SDL_PollEvent(&e) == true)
 	{
@@ -145,6 +147,7 @@ void TileMap::getEvent(bool& quit, std::vector<uint8_t>& vx) {
 			// checks if exit button is pressed	
 			case SDL_EVENT_QUIT: 
 					quit = true; // This will set quit to true (game loop ends)
+					break;
 			// All possible key presses (0-F)
 			case SDL_EVENT_KEY_DOWN:
 				switch (e.key.scancode) {

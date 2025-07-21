@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
     
     /*TileMap Chip8Game;
 
-    std::size_t x = 20;
-    std::size_t y = 50;
+    std::size_t x = 40;
+    std::size_t y = 0;
     std::size_t N = 5;
     std::vector<std::vector<bool>> g(N, std::vector<bool>(8, false));
     std::vector<uint8_t> data = {};
@@ -67,7 +67,9 @@ int main(int argc, char *argv[])
       RAM.setMemory(gameData);
       //RAM.printMemory();
 
-      CPU Chip8CPU(RAM);
+      TileMap Chip8TM;
+
+      CPU Chip8CPU(RAM, Chip8TM);
       Chip8CPU.Run();
      
       return 0;

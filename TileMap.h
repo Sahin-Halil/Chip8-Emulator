@@ -33,6 +33,6 @@ class TileMap
 		void resetMap(); // Resets all pixels on tilemap back to false (off)
 		void Destroy(); // Destroys game window during code termination
 		void remainingTime(); // Wait until time is up before starting next loop cycle (frame)
-		void getEvent(bool& quit, std::vector<uint8_t>& vx); // Get event from user
+		void getEvent(bool& quit); // Get event from user
 };
 
