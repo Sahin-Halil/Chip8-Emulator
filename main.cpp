@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
 
       CPU Chip8CPU(RAM, Chip8TM);
       Chip8CPU.Run();
+
+      Chip8TM.Destroy();
      
       return 0;
 }

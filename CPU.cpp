@@ -1,11 +1,11 @@
 #include "CPU.h"
 #include <iostream>
 
-CPU::CPU(Memory& ram, TileMap& tileMap) {
+CPU::CPU(Memory& ram, TileMap& chip8tm) {
 	PC = 512;
 	I = 0;
 	RAM = ram;
-	Chip8TM = tileMap;
+	Chip8TM = & chip8tm;
 	V = std::vector<uint8_t>(16);
 	quit = false;
 }
@@ -31,8 +31,9 @@ std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
 
 void CPU::Run() {
 	while (quit == false) {
-		Chip8TM.getEvent(quit);
-		std::cout << quit;
+		Chip8TM->getEvent(quit);
+		Chip8TM->remainingTime();
+		//Chip8TM->Draw();
 		uint16_t instruction = Fetch();
 		std::vector<uint8_t> instructions = Decode(instruction);
 		uint8_t nibble1 = instructions[0], nibble2 = instructions[1], nibble3 = instructions[2], nibble4 = instructions[3];
@@ -68,9 +69,9 @@ void CPU::Run() {
 						mask >>= 1;
 					}
 				}
-				Chip8TM.updateMap(V[X], V[Y], N, spriteDataBool);
+				Chip8TM->updateMap(V[X], V[Y], N, spriteDataBool);
 				//std::cout << "Here" << "\n";
-				Chip8TM.Draw();
+				Chip8TM->Draw();
 				break;
 			}
 			case 0x0:
@@ -82,7 +83,7 @@ void CPU::Run() {
 									case 0x0:
 										//std::cout << +A << " " << +X << " " << +Y << " " << +N << "\n";
 										//std::cout << "Here" << "\n";
-										Chip8TM.resetMap();
+										Chip8TM->resetMap();
 										break;
 								}
 								break;

@@ -98,9 +98,9 @@ void TileMap::Draw() {
 			else {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
-			//std::cout << tileMap[i][j];
+			// std::cout << tileMap[i][j];
 		}
-		//std::cout << "\n";
+		// std::cout << "\n";
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);
