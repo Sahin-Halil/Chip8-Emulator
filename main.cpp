@@ -63,17 +63,15 @@ int main(int argc, char *argv[])
 
       std::vector<uint8_t> gameData = loadROM();
 
-      Memory RAM;
-      RAM.setMemory(gameData);
+      std::unique_ptr<Memory> RAM = std::make_unique<Memory>();
+      RAM->setMemory(gameData);
       //RAM.printMemory();
 
-      TileMap Chip8TM;
+      std::unique_ptr<TileMap> Chip8TM = std::make_unique<TileMap>();
 
-      CPU Chip8CPU(RAM, Chip8TM);
+      CPU Chip8CPU(std::move(RAM), std::move(Chip8TM));
       Chip8CPU.Run();
 
-      Chip8TM.Destroy();
-     
       return 0;
 }
 

@@ -1,18 +1,18 @@
 #include "CPU.h"
 #include <iostream>
 
-CPU::CPU(Memory& ram, TileMap& chip8tm) {
+CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm) {
 	PC = 512;
 	I = 0;
-	RAM = ram;
-	Chip8TM = & chip8tm;
+	RAM = std::move(ram);
+	Chip8TM = std::move(chip8tm);
 	V = std::vector<uint8_t>(16);
 	quit = false;
 }
 
 uint16_t CPU::Fetch() {
-	uint8_t firstByte = RAM.getMemory(PC);
-	uint8_t secondByte = RAM.getMemory(PC + 1);
+	uint8_t firstByte = RAM->getMemory(PC);
+	uint8_t secondByte = RAM->getMemory(PC + 1);
 	//std::cout << +firstByte << " " << +secondByte << "\n";
 	PC += 2;
 
@@ -58,7 +58,7 @@ void CPU::Run() {
 				std::vector<uint8_t> spriteDataBinary = std::vector<uint8_t>(N);
 				std::vector<std::vector<bool>> spriteDataBool(N, std::vector<bool>(8, false));
 				for (size_t i = 0; i < N; i++) {
-					uint8_t spriteData = RAM.getMemory(I + i);
+					uint8_t spriteData = RAM->getMemory(I + i);
 					spriteDataBinary[i] = spriteData;
 				}				
 				for (std::size_t i = 0; i < N; i++) {
@@ -111,5 +111,7 @@ void CPU::Run() {
 				break;
 		}
 	}
+
+	Chip8TM->Destroy();
 }
 
