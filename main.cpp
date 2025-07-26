@@ -7,6 +7,7 @@
 #include "Memory.h"
 #include "CPU.h"
 #include "TileMap.h"
+#include "CPUTileMapData.h"
 
 
 int main(int argc, char *argv[])
