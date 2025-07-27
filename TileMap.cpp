@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Setups tilemap and game window
-TileMap::TileMap() {
+TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Checks if the SDL library is initialised and working
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		SDL_Log("Couldn't initialise SDL: %s\n", SDL_GetError());
@@ -58,16 +58,19 @@ TileMap::TileMap() {
 	
 	// Initialising current time stamp
 	timeBefore = 0;
+
+	// Initialising Shared Data
+	Chip8SD = std::move(chip8sd);
 }
 
 // Updates tilemap with a given starting (x, y), size and contents to update tilemap with
 void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::vector<std::vector<bool>>& updateArea) {
 	// Set x in range 0 - 63 and make sure it doesn't go off edge of screen
-	std::size_t x_start = x % TILEMAP_WIDTH;
+	std::size_t x_start = Chip8SD->getVRegister(x) % TILEMAP_WIDTH;
 	std::size_t x_end = (x_start + 8 < TILEMAP_WIDTH) ? x_start + 8 : TILEMAP_WIDTH;
 	
 	// Set y in range 0 - 32 and make sure it doesn't go off edge of screen
-	std::size_t y_start = y % TILEMAP_HEIGHT;
+	std::size_t y_start = Chip8SD->getVRegister(y) % TILEMAP_HEIGHT;
 	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
 
 	// Both tilemap and updated portion are 2D arrays
@@ -136,8 +139,8 @@ void TileMap::remainingTime() {
 	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
 }
 
-// Return the current hex value key being pressed down
-void TileMap::getEvent(bool& quit) {
+// Return the current event happening
+void TileMap::getEvent() {
 	SDL_Event e;
 	std::vector <uint8_t> vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
 	//Get event data
@@ -146,8 +149,8 @@ void TileMap::getEvent(bool& quit) {
 		switch (e.type) {
 			// checks if exit button is pressed	
 			case SDL_EVENT_QUIT: 
-					quit = true; // This will set quit to true (game loop ends)
-					break;
+				Chip8SD->setExitStatus(true); // This will set quit to true (game loop ends)
+				break;
 			// All possible key presses (0-F)
 			case SDL_EVENT_KEY_DOWN:
 				switch (e.key.scancode) {

@@ -68,9 +68,12 @@ int main(int argc, char *argv[])
       RAM->setMemory(gameData);
       //RAM.printMemory();
 
-      std::unique_ptr<TileMap> Chip8TM = std::make_unique<TileMap>();
+      std::shared_ptr<CPUTileMapData> Chip8SD1 = std::make_unique<CPUTileMapData>();
+      std::shared_ptr<CPUTileMapData> Chip8SD2(Chip8SD1);
 
-      CPU Chip8CPU(std::move(RAM), std::move(Chip8TM));
+      std::unique_ptr<TileMap> Chip8TM = std::make_unique<TileMap>(std::move(Chip8SD1));
+
+      CPU Chip8CPU(std::move(RAM), std::move(Chip8TM), std::move(Chip8SD2));
       Chip8CPU.Run();
 
       return 0;
