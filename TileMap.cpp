@@ -54,7 +54,7 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	resetMap();
 
 	// Initialising speed of loop execution
-	frameRate = 700;
+	frameRate = 60;
 	
 	// Initialising current time stamp
 	timeBefore = 0;

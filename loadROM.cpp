@@ -7,7 +7,7 @@ std::vector<uint8_t> loadROM() {
     std::vector<uint8_t> gameData = {};
     
     std::ifstream chip8Game;
-    chip8Game.open("Game-Files/IBM-Logo.ch8", std::ios::out | std::ios::binary);
+    chip8Game.open("Game-Files/bc_test.ch8", std::ios::out | std::ios::binary);
 
     if (chip8Game.is_open()) {
         std::cout << "Success: chip8 file was opened" << "\n";
