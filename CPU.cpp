@@ -1,13 +1,12 @@
 #include "CPU.h"
 #include <iostream>
 
-CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm) {
+CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::shared_ptr<CPUTileMapData> chip8sd) {
 	PC = 512;
 	I = 0;
 	RAM = std::move(ram);
 	Chip8TM = std::move(chip8tm);
-	V = std::vector<uint8_t>(16);
-	quit = false;
+	Chip8SD = std::move(chip8sd);
 }
 
 uint16_t CPU::Fetch() {
@@ -30,8 +29,8 @@ std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
 }
 
 void CPU::Run() {
-	while (quit == false) {
-		Chip8TM->getEvent(quit);
+	while (Chip8SD->getExitStatus() == false) {
+		Chip8TM->getEvent();
 		Chip8TM->remainingTime();
 		//Chip8TM->Draw();
 		uint16_t instruction = Fetch();
@@ -69,7 +68,7 @@ void CPU::Run() {
 						mask >>= 1;
 					}
 				}
-				Chip8TM->updateMap(V[X], V[Y], N, spriteDataBool);
+				Chip8TM->updateMap(X, Y, N, spriteDataBool);
 				//std::cout << "Here" << "\n";
 				Chip8TM->Draw();
 				break;
@@ -96,12 +95,15 @@ void CPU::Run() {
 				break;
 			case 0x6:
 				//std::cout << "Here" << +X << "\n";
-				V[X] = NN;
+				Chip8SD->setVRegister(X, NN);
 				break;
 			case 0x7:
+			{
 				//std::cout << "Here" << +X << "\n";
-				V[X] += NN;
+				uint8_t currRC = Chip8SD->getVRegister(X);
+				Chip8SD->setVRegister(X, currRC + NN);
 				break;
+			}
 			case 0xA:
 				//std::cout << "Here" << +I << "\n";
 				I = NNN;
