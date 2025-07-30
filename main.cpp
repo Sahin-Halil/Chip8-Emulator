@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
       std::unique_ptr<Memory> RAM = std::make_unique<Memory>();
       RAM->setMemory(gameData);
-      //RAM.printMemory();
+      //RAM->printMemory();
 
       std::shared_ptr<CPUTileMapData> Chip8SD1 = std::make_unique<CPUTileMapData>();
       std::shared_ptr<CPUTileMapData> Chip8SD2(Chip8SD1);

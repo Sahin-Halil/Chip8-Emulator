@@ -54,7 +54,7 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	resetMap();
 
 	// Initialising speed of loop execution
-	frameRate = 60;
+	frameRate = 20;
 	
 	// Initialising current time stamp
 	timeBefore = 0;
@@ -71,7 +71,9 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	
 	// Set y in range 0 - 32 and make sure it doesn't go off edge of screen
 	std::size_t y_start = Chip8SD->getVRegister(y) % TILEMAP_HEIGHT;
-	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
+	//std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
+	std::size_t y_end = y_start + N;
+	//Chip8SD->setVRegister(0xF, 1);
 
 	// Both tilemap and updated portion are 2D arrays
 	// Two pointers for each array are used to track current index
@@ -80,6 +82,9 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 		auto updateAreaCol = updateAreaRow->begin();
 		for (std::size_t j = x_start; j < x_end; j++) {
 			// Value of tilemap is set to either true or false
+			if (tileMap[i][j]){
+				//Chip8SD->setVRegister(0xF, 0);
+			}
 			tileMap[i][j] ^= *(updateAreaCol);
 			updateAreaCol++;
 		}
@@ -101,9 +106,9 @@ void TileMap::Draw() {
 			else {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
-			// std::cout << tileMap[i][j];
+			//std::cout << tileMap[i][j];
 		}
-		// std::cout << "\n";
+		//std::cout << "\n";
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);

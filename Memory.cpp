@@ -40,6 +40,7 @@ uint8_t Memory::getMemory(size_t i) {
 
 void Memory::updateMemory(size_t index, uint8_t data) {
 	workingMemory[index] = data;
+	std::cout << +workingMemory[index] << "\n";
 }
 
 void Memory::printMemory() {
@@ -51,7 +52,7 @@ void Memory::printMemory() {
 	}
 	
 	std::cout << "Printing Contents of RAM" << "\n";
-	for (size_t i = 512; i < 647; i++) {
+	for (size_t i = 512; i < 1000; i++) {
 		std::cout << +getMemory(i) << "\n";
 	}
 	

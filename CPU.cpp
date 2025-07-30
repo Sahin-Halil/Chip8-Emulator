@@ -41,8 +41,7 @@ void CPU::Run() {
 		uint8_t N = nibble4;
 		uint8_t NN = (nibble3 << 4) | nibble4;
 		uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4;
-		//std::cout << PC - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
-
+		std::cout << PC - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 		// instructions done so far
 		// DXYN (display/draw)
 		// 00E0 (clear screen)
@@ -67,22 +66,23 @@ void CPU::Run() {
 		 
 		// 9XY0 (Skip Instruction)
 		switch (nibble1) {
-			case 0xD:
-			{
+			case 0xD: {
 				// Put these in its own method later on
 				std::vector<uint8_t> spriteDataBinary = std::vector<uint8_t>(N);
 				std::vector<std::vector<bool>> spriteDataBool(N, std::vector<bool>(8, false));
 				for (size_t i = 0; i < N; i++) {
 					uint8_t spriteData = RAM->getMemory(I + i);
 					spriteDataBinary[i] = spriteData;
-				}				
+				}	
 				for (std::size_t i = 0; i < N; i++) {
 					std::uint8_t val = spriteDataBinary[i];
 					std::uint8_t mask = 0x80;
 					for (std::size_t j = 0; j < 8; j++) {
 						spriteDataBool[i][j] = mask & val;
 						mask >>= 1;
+						std::cout << spriteDataBool[i][j];
 					}
+					std::cout << "\n";
 				}
 				Chip8TM->updateMap(X, Y, N, spriteDataBool);
 				//std::cout << "Here" << "\n";
@@ -114,12 +114,12 @@ void CPU::Run() {
 				Chip8SD->setVRegister(X, NN);
 				break;
 			case 0x7:
-			{
+				{
 				//std::cout << "Here" << +X << "\n";
-				uint8_t currRC = Chip8SD->getVRegister(X);
-				Chip8SD->setVRegister(X, currRC + NN);
+				uint8_t currRV = Chip8SD->getVRegister(X);
+				Chip8SD->setVRegister(X, currRV + NN);
 				break;
-			}
+				}
 			case 0xA:
 				//std::cout << "Here" << +I << "\n";
 				I = NNN;
@@ -127,6 +127,7 @@ void CPU::Run() {
 			case 0x3:
 				//std::cout << "Here" << +I << "\n";
 				if (Chip8SD->getVRegister(X) == NN) {
+					std::cout << "Here" << "\n";
 					PC += 2;
 				}
 				break;
@@ -145,79 +146,84 @@ void CPU::Run() {
 						}
 						break;
 				}
-				break;
-			case 0x9:
-				//std::cout << "Here" << +I << "\n";
-				switch (nibble4) {
-					case 0x0:
-						if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
-							PC += 2;
-						}
-						break;
-				}
-				break;
+			 	break;
+			//case 0x9:
+			//	//std::cout << "Here" <<"\n";
+			//	switch (nibble4) {
+			//		case 0x0:
+			//			if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
+			//				PC += 2;
+			//			}
+			//			break;
+			//	}
+			//	break;
 			case 0x8:
 				switch (nibble4) {
-					case 0x5:
-					{
-						Chip8SD->setVRegister(0xF - 0x1, 1);
+					case 0x5: {
+						//std::cout << "Here" << "\n";
+						Chip8SD->setVRegister(0xF, 1);
 						uint8_t VX = Chip8SD->getVRegister(X);
 						uint8_t VY = Chip8SD->getVRegister(Y);
 						uint8_t difference = VX - VY;
-						Chip8SD->setVRegister(X, difference);
 						if (VX < VY) {
-							Chip8SD->setVRegister(0xF - 0x1, 0);
+							std::cout << "here" << "\n";
+							//difference = VY - VX;
+							Chip8SD->setVRegister(0xF, 0);
 						}
+						Chip8SD->setVRegister(X, difference);
 						break;
 					}
-					case 0x7:
-					{
-						Chip8SD->setVRegister(0xF - 0x1, 1);
+					case 0x7: {
+						//std::cout << "Here" << "\n";
+						Chip8SD->setVRegister(0xF, 1);
 						uint8_t VX = Chip8SD->getVRegister(X);
 						uint8_t VY = Chip8SD->getVRegister(Y);
 						uint8_t difference = VY - VX;
-						Chip8SD->setVRegister(X, difference);
 						if (VY < VX) {
-							Chip8SD->setVRegister(0xF - 0x1, 0);
+							std::cout << "here" << "\n";
+							//difference = VX - VY;
+							Chip8SD->setVRegister(0xF, 0);
 						}
+						Chip8SD->setVRegister(X, difference);
 						break;
 					}
-					case 0x1:
-					{
+					case 0x1: {
 						uint8_t VX = Chip8SD->getVRegister(X);
 						uint8_t VY = Chip8SD->getVRegister(Y);
 						uint8_t bitwiseOR = VX | VY;
 						Chip8SD->setVRegister(X, bitwiseOR);
+						break;
 					}
-					case 0x2:
-					{
+					case 0x2: {
 						uint8_t VX = Chip8SD->getVRegister(X);
 						uint8_t VY = Chip8SD->getVRegister(Y);
 						uint8_t bitwiseAND = VX & VY;
 						Chip8SD->setVRegister(X, bitwiseAND);
+						break;
 					}
-					case 0x3:
-					{
+					case 0x3: {
 						uint8_t VX = Chip8SD->getVRegister(X);
 						uint8_t VY = Chip8SD->getVRegister(Y);
 						uint8_t bitwiseXOR = VX ^ VY;
 						Chip8SD->setVRegister(X, bitwiseXOR);
+						break;
 					}
-					case 0xE:
-					{
+					case 0xE: {
 						uint8_t VX = Chip8SD->getVRegister(X);
-						uint8_t shiftedBit = 0x80 | VX;
-						Chip8SD->setVRegister(0xF - 0x1, shiftedBit);
+						uint8_t MSB = 0x80 & VX;
 						VX <<= 1;
+						MSB >>= 7;
 						Chip8SD->setVRegister(X, VX);
+						Chip8SD->setVRegister(0xF, MSB);
+						break;
 					}
-					case 0x6:
-					{
+					case 0x6: {
 						uint8_t VX = Chip8SD->getVRegister(X);
-						uint8_t shiftedBit = 0x01 | VX;
-						Chip8SD->setVRegister(0xF - 0x1, shiftedBit);
+						uint8_t LSB = 0x01 & VX;
 						VX >>= 1;
 						Chip8SD->setVRegister(X, VX);
+						Chip8SD->setVRegister(0xF, LSB);
+						break;
 					}
 					break;
 				}
@@ -227,8 +233,10 @@ void CPU::Run() {
 					case 0x5:
 						switch (nibble4) {
 							case 0x5:
+								std::cout << "instruction: " << "FX55" << "\n";
 								for (std::size_t i = 0; i <= X; i++) {
 									uint8_t V = Chip8SD->getVRegister(i);
+									std::cout << +V << "\n";
 									RAM->updateMemory(I + i, V);
 								}
 								break;
@@ -237,8 +245,10 @@ void CPU::Run() {
 					case 0x6:
 						switch (nibble4) {
 							case 0x5:
+								std::cout << "instruction: " << "FX65" << "\n";
 								for (std::size_t i = 0; i <= X; i++) {
 									uint8_t data = RAM->getMemory(I + i);
+									std::cout << +data << "\n";
 									Chip8SD->setVRegister(i, data);
 								}
 								break;
@@ -246,15 +256,24 @@ void CPU::Run() {
 						break;
 					case 0x3:
 						switch (nibble4) {
-							case 0x3:
-							{
+							case 0x3: {
+								std::cout << "instruction: " << "FX33" << "\n";
+								// I, I + 1, I + 2
+								// I + 1, I + 2, I + 3
 								uint8_t VX = Chip8SD->getVRegister(X);
-								for (std::size_t i = 0; i < 3; i++) {
+								for (std::size_t i = 3; i > 0; i--) {
 									uint8_t digit = VX % 10;
-									RAM->updateMemory(I + i, digit);
+									RAM->updateMemory(I + i - 1, digit);
 									VX /= 10;
 								}
+								break;
 							}
+						}
+						break;
+					case 0x1: 
+						switch (nibble4) {
+							case 0xE:
+								I += Chip8SD->getVRegister(X);
 								break;
 						}
 						break;
