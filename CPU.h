@@ -24,5 +24,9 @@ class CPU {
 		std::vector<uint8_t> Decode(uint16_t instruction); // Break down instruction to be executed
 		void Execute(const std::vector<uint8_t>& currentInstructions); // Perform current instruction
 		void Run(); // Run emulation Chip-8 architecture
+		
+		// Getter and Setter for PC
+		uint16_t getPC();  
+		void setPC(uint16_t newPC);
 };
 

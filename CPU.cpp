@@ -16,10 +16,10 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 // Get next two bytes from memory, then increment PC, merge the two bytes and return it (this is the instruction)
 uint16_t CPU::Fetch() {
 	// Retrive next two bytes
-	uint8_t firstByte = RAM->getMemory(PC);
-	uint8_t secondByte = RAM->getMemory(PC + 1);
+	uint8_t firstByte = RAM->getMemory(getPC());
+	uint8_t secondByte = RAM->getMemory(getPC() + 1);
 	
-	PC += 2; // Increment PC 
+	setPC(getPC() + 2); // Increment PC 
 
 	// Merge the bytes into one, then return it
 	uint16_t instruction = (firstByte << 8) | secondByte;
@@ -49,7 +49,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	//std::cout << PC - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	//std::cout << getPC() - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -93,7 +93,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				for (std::size_t j = 0; j < 8; j++) {
 					spriteDataBool[i][j] = mask & val;
 					mask >>= 1;
-					std::cout << spriteDataBool[i][j];
+					//std::cout << spriteDataBool[i][j];
 				}
 				std::cout << "\n";
 			}
@@ -120,7 +120,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			break;
 		// 1NNN (jump)
 		case 0x1:
-			PC = NNN;
+			setPC(NNN);
 			break;
 		// 6XNN (set register VX)
 		case 0x6:
@@ -139,13 +139,13 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		// 3XNN (skip Instruction)
 		case 0x3:
 			if (Chip8SD->getVRegister(X) == NN) {
-				PC += 2;
+				setPC(getPC() + 2);
 			}
 			break;
 		// 4XNN (skip Instruction)
 		case 0x4:
 			if (Chip8SD->getVRegister(X) != NN) {
-				PC += 2;
+				setPC(getPC() + 2);
 			}
 			break;
 		case 0x5:
@@ -153,7 +153,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				// 5XY0 (skip Instruction)
 				case 0x0:
 					if (Chip8SD->getVRegister(X) == Chip8SD->getVRegister(Y)) {
-						PC += 2;
+						setPC(getPC() + 2);;
 					}
 					break;
 			}
@@ -163,7 +163,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		//	switch (nibble4) {
 		//		case 0x0:
 		//			if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
-		//				PC += 2;
+		//				setPC(getPC() + 2);
 		//			}
 		//			break;
 		//	}
@@ -252,7 +252,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x5:
 							for (std::size_t i = 0; i <= X; i++) {
 								uint8_t V = Chip8SD->getVRegister(i);
-								std::cout << +V << "\n";
 								RAM->updateMemory(I + i, V);
 							}
 							break;
@@ -262,10 +261,8 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					switch (nibble4) {
 						// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
 						case 0x5:
-							std::cout << "instruction: " << "FX65" << "\n";
 							for (std::size_t i = 0; i <= X; i++) {
 								uint8_t data = RAM->getMemory(I + i);
-								std::cout << +data << "\n";
 								Chip8SD->setVRegister(i, data);
 							}
 							break;
@@ -275,7 +272,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					switch (nibble4) {
 						// FX33 (Break a number into digits and add it to memory starting from I)
 						case 0x3: {
-							std::cout << "instruction: " << "FX33" << "\n";
 							uint8_t VX = Chip8SD->getVRegister(X);
 							for (std::size_t i = 3; i > 0; i--) {
 								uint8_t digit = VX % 10;
@@ -323,5 +319,20 @@ void CPU::Run() {
 	}
 
 	Chip8TM->Destroy(); // Destroy game contents once emulation ends
+}
+
+// Return current PC Value
+uint16_t CPU::getPC() {
+	return PC;
+}
+
+// Check new PC value is in range before setting it
+void CPU::setPC(uint16_t newPC) {
+	if (0 <= newPC  && newPC < 4096) {
+		PC = newPC;
+	}
+	else {
+		std::cout << "Error: New PC value out of bounds" << "\n";
+	}
 }
 

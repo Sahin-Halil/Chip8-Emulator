@@ -40,7 +40,6 @@ uint8_t Memory::getMemory(size_t i) {
 
 void Memory::updateMemory(size_t index, uint8_t data) {
 	workingMemory[index] = data;
-	std::cout << +workingMemory[index] << "\n";
 }
 
 void Memory::printMemory() {
