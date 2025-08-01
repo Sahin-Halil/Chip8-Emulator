@@ -42,6 +42,7 @@ void CPU::Run() {
 		uint8_t NN = (nibble3 << 4) | nibble4;
 		uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4;
 		std::cout << PC - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+
 		// instructions done so far
 		// DXYN (display/draw)
 		// 00E0 (clear screen)
@@ -65,6 +66,7 @@ void CPU::Run() {
 		// FX33 (Break a number into digits and add it to memory starting from I)
 		 
 		// 9XY0 (Skip Instruction)
+		// FX1E (VX is addedd to I)
 		switch (nibble1) {
 			case 0xD: {
 				// Put these in its own method later on
