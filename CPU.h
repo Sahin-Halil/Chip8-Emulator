@@ -14,7 +14,6 @@ class CPU {
 		std::unique_ptr<Memory> RAM;
 		std::unique_ptr<TileMap> Chip8TM;
 		std::shared_ptr<CPUTileMapData> Chip8SD; // Shared attributes
-		//I;
 		//stack;
 		//delayTimer;
 		//soundTimer;
@@ -28,5 +27,9 @@ class CPU {
 		// Getter and Setter for PC
 		uint16_t getPC();  
 		void setPC(uint16_t newPC);
+
+		// Getter and Setter for I
+		uint16_t getI();
+		void setI(uint16_t newI);
 };
 

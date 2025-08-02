@@ -84,7 +84,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			std::vector<uint8_t> spriteDataBinary = std::vector<uint8_t>(N);
 			std::vector<std::vector<bool>> spriteDataBool(N, std::vector<bool>(8, false));
 			for (size_t i = 0; i < N; i++) {
-				uint8_t spriteData = RAM->getMemory(I + i);
+				uint8_t spriteData = RAM->getMemory(getI() + i);
 				spriteDataBinary[i] = spriteData;
 			}
 			for (std::size_t i = 0; i < N; i++) {
@@ -95,7 +95,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					mask >>= 1;
 					//std::cout << spriteDataBool[i][j];
 				}
-				std::cout << "\n";
+				// std::cout << "\n";
 			}
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
 			//std::cout << "Here" << "\n";
@@ -134,7 +134,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		}
 		// ANNN (set index register I)
 		case 0xA:
-			I = NNN;
+			setI(NNN);
 			break;
 		// 3XNN (skip Instruction)
 		case 0x3:
@@ -185,7 +185,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, difference);
 					break;
 				}
-				// 8XY7(store in VX : VY - VX, and modified VF)
+				// 8XY7 (store in VX : VY - VX, and modified VF)
 				case 0x7: {
 					Chip8SD->setVRegister(0xF, 1);
 					uint8_t VX = Chip8SD->getVRegister(X);
@@ -252,7 +252,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x5:
 							for (std::size_t i = 0; i <= X; i++) {
 								uint8_t V = Chip8SD->getVRegister(i);
-								RAM->updateMemory(I + i, V);
+								RAM->updateMemory(getI() + i, V);
 							}
 							break;
 					}
@@ -262,7 +262,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
 						case 0x5:
 							for (std::size_t i = 0; i <= X; i++) {
-								uint8_t data = RAM->getMemory(I + i);
+								uint8_t data = RAM->getMemory(getI() + i);
 								Chip8SD->setVRegister(i, data);
 							}
 							break;
@@ -275,7 +275,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							for (std::size_t i = 3; i > 0; i--) {
 								uint8_t digit = VX % 10;
-								RAM->updateMemory(I + i - 1, digit);
+								RAM->updateMemory(getI() + i - 1, digit);
 								VX /= 10;
 							}
 							break;
@@ -290,7 +290,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							if (I + VX > 0xFFF) {
 								Chip8SD->setVRegister(0xF, 1);
 							}
-							I += VX;
+							setI(getI() + VX);
 							break;
 						}
 					}
@@ -333,6 +333,21 @@ void CPU::setPC(uint16_t newPC) {
 	}
 	else {
 		std::cout << "Error: New PC value out of bounds" << "\n";
+	}
+}
+
+// Return current I value
+uint16_t CPU::getI() {
+	return I;
+}
+
+// Check new I value is in range before setting it
+void CPU::setI(uint16_t newI) {
+	if (0 <= newI && newI < 4096) {
+		I = newI;
+	}
+	else {
+		std::cout << "Error: New I value out of bounds" << "\n";
 	}
 }
 
