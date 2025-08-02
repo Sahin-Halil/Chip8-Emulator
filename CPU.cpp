@@ -80,23 +80,8 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	switch (nibble1) {
 		// DXYN (display/draw)
 		case 0xD: {
-			// Put these in its own method later on
-			std::vector<uint8_t> spriteDataBinary = std::vector<uint8_t>(N);
-			std::vector<std::vector<bool>> spriteDataBool(N, std::vector<bool>(8, false));
-			for (size_t i = 0; i < N; i++) {
-				uint8_t spriteData = RAM->getMemory(getI() + i);
-				spriteDataBinary[i] = spriteData;
-			}
-			for (std::size_t i = 0; i < N; i++) {
-				std::uint8_t val = spriteDataBinary[i];
-				std::uint8_t mask = 0x80;
-				for (std::size_t j = 0; j < 8; j++) {
-					spriteDataBool[i][j] = mask & val;
-					mask >>= 1;
-					//std::cout << spriteDataBool[i][j];
-				}
-				// std::cout << "\n";
-			}
+			// Get sprite data and output on game window 
+			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
 			//std::cout << "Here" << "\n";
 			Chip8TM->Draw();
@@ -153,7 +138,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				// 5XY0 (skip Instruction)
 				case 0x0:
 					if (Chip8SD->getVRegister(X) == Chip8SD->getVRegister(Y)) {
-						setPC(getPC() + 2);;
+						setPC(getPC() + 2);
 					}
 					break;
 			}
@@ -319,6 +304,33 @@ void CPU::Run() {
 	}
 
 	Chip8TM->Destroy(); // Destroy game contents once emulation ends
+}
+
+// Get sprite data and put it into a 2D bool array
+std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
+	// Declare arrays to retrieve sprite data
+	std::vector<uint8_t> spriteDataBinary = std::vector<uint8_t>(N); 
+	std::vector<std::vector<bool>> spriteDataBool(N, std::vector<bool>(8, false));
+
+	// Loop through N entries of memory and add to array
+	for (size_t i = 0; i < N; i++) {
+		uint8_t spriteData = RAM->getMemory(getI() + i);
+		spriteDataBinary[i] = spriteData;
+	}
+
+	// Break binary values into bits and add each to specific part of 2D boolean array
+	for (std::size_t i = 0; i < N; i++) {
+		std::uint8_t val = spriteDataBinary[i];
+		std::uint8_t mask = 0x80; 
+		for (std::size_t j = 0; j < 8; j++) {
+			spriteDataBool[i][j] = mask & val; // Mask a specific bit of a binary value
+			mask >>= 1;
+			//std::cout << spriteDataBool[i][j];
+		}
+		// std::cout << "\n";
+	}
+
+	return spriteDataBool;
 }
 
 // Return current PC Value
