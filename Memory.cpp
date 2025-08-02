@@ -34,18 +34,36 @@ Memory::Memory() {
 // Put ROM contents into memory array
 void Memory::setMemory(const std::vector<uint8_t>& gameData) {
 	for (size_t i = 0; i < gameData.size(); i++) {
-		workingMemory[i + 512] = gameData[i]; // Working memory starts at address 512
+		// Check address is not out of bounds 
+		if (i < 4096) {
+			workingMemory[i + 512] = gameData[i]; // Working memory starts at address 512
+		}
+		else {
+			std::cout << "Error: Initial ROM contents value out of bounds" << "\n";
+		}
 	}
 }
 
 // Get element at given memory address
 uint8_t Memory::getMemory(size_t i) {
-	return workingMemory[i];
+	// Check bounds of accessed address
+	if (0 <= i && i < 4096) {
+		return workingMemory[i];
+	}
+	else{
+		std::cout << "Error: Accessed address for get out of bounds" << "\n";
+	}
 }
 
 // Update memory at given address
 void Memory::updateMemory(size_t index, uint8_t data) {
-	workingMemory[index] = data;
+	// Check bounds of accessed address
+	if (0 <= index && index < 4096) {
+		workingMemory[index] = data;
+	}
+	else {
+		std::cout << "Error: Accessed address for set out of bounds " << "\n";
+	}
 }
 
 // Print Fonts and ROM contents in memory
