@@ -52,6 +52,7 @@ uint8_t Memory::getMemory(size_t i) {
 	}
 	else{
 		std::cout << "Error: Accessed address for get out of bounds" << "\n";
+		return 0;
 	}
 }
 
