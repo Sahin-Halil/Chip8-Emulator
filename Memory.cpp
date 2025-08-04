@@ -35,7 +35,7 @@ Memory::Memory() {
 void Memory::setMemory(const std::vector<uint8_t>& gameData) {
 	for (size_t i = 0; i < gameData.size(); i++) {
 		// Check address is not out of bounds 
-		if (i < 4096) {
+		if (i + 512 < 4096) {
 			workingMemory[i + 512] = gameData[i]; // Working memory starts at address 512
 		}
 		else {
