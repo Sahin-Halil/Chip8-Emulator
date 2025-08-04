@@ -26,12 +26,12 @@ uint16_t CPU::Fetch() {
 	return instruction;
 }
 
-// Breakdown 16 bit instruction into 4 nibbles (each nibble stored in its own 
+// Breakdown 16 bit instruction into 4 nibbles (each nibble stored in its own)
 std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
 	std::vector<uint8_t> instructions = std::vector<uint8_t>(4); // Array to store each nibble of instruction
 	std::uint8_t mask = 0x0F; // Used to get last 4 bits of binary number
 
-	// Loop 4 times, each iteration for a differnet nibble in instruction
+	// Loop 4 times, each iteration for a different nibble in instruction
 	for (std::size_t i = 0; i < 4; i++) {
 		instructions[i] = (instruction >> ((3 - i) * 4)) & mask; // shift instruction and mask to get and store current nibble
 	}
@@ -39,7 +39,9 @@ std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
 	return instructions; 
 }
 
+// Use 4 variables to store each nibble, and use those nibbles to find the next instruction needed to be executed (done in switch cases)
 void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
+	// Get Each nibble from instruction array
 	uint8_t nibble1 = currentInstructions[0], nibble2 = currentInstructions[1], nibble3 = currentInstructions[2], nibble4 = currentInstructions[3];
 
 	// Standard variables that are used in many different instructions
@@ -155,7 +157,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		//	break;
 		case 0x8:
 			switch (nibble4) {
-				// 8XY5 (store in VX, VX - VY, and modified VF)
+				// 8XY5 (store in VX, VX - VY, and modify VF)
 				case 0x5: {
 					//std::cout << "Here" << "\n";
 					Chip8SD->setVRegister(0xF, 1);
@@ -170,7 +172,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, difference);
 					break;
 				}
-				// 8XY7 (store in VX : VY - VX, and modified VF)
+				// 8XY7 (store in VX : VY - VX, and modify VF)
 				case 0x7: {
 					Chip8SD->setVRegister(0xF, 1);
 					uint8_t VX = Chip8SD->getVRegister(X);
@@ -208,7 +210,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, bitwiseXOR);
 					break;
 				}
-				// 8XYE (modern version: shifted VX to left, and modified VF)
+				// 8XYE (modern version: shift VX to left, and modify VF)
 				case 0xE: {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t MSB = 0x80 & VX;
@@ -218,7 +220,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(0xF, MSB);
 					break;
 				}
-				// 8XY6 (modern version: shifted VX to right, and modified VF)
+				// 8XY6 (modern version: shift VX to right, and modify VF)
 				case 0x6: {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t LSB = 0x01 & VX;
@@ -269,19 +271,16 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					break;
 				case 0x1:
 					switch (nibble4) {
-						// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
+						// FX1E (VX is addedd to I)
 						case 0xE: {
 							uint8_t VX = Chip8SD->getVRegister(X);
-							if (I + VX > 0xFFF) {
-								Chip8SD->setVRegister(0xF, 1);
-							}
 							setI(getI() + VX);
 							break;
 						}
 					}
 					break;
 				}
-				break;
+			break;
 		// Unknown instruction (useful for debugging)
 		default:
 			std::cout << "ERROR" << "\n";

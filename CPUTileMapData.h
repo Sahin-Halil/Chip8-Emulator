@@ -2,8 +2,8 @@
 #include <vector>
 
 struct CPUTileMapData {
-	// Shared Attributes
 	private:
+		// Shared Attributes
 		bool quit;
 		std::vector<uint8_t> V;
 
