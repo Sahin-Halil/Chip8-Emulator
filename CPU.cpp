@@ -1,30 +1,24 @@
 #include "CPU.h"
 #include <iostream>
 
-// Initialise each CPU attribute
 CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::shared_ptr<CPUTileMapData> chip8sd) {
-	// Initialise registers
 	PC = 512;
 	I = 0;
-	
-	// Move objects into respective pointers
 	RAM = std::move(ram);
 	Chip8TM = std::move(chip8tm);
 	Chip8SD = std::move(chip8sd);
 }
 
-// Get next two bytes from memory, then increment PC, merge the two bytes and return it (this is the instruction)
 uint16_t CPU::Fetch() {
-	// Retrive next two bytes
-	uint8_t firstByte = RAM->getMemory(getPC());
-	uint8_t secondByte = RAM->getMemory(getPC() + 1);
-	
-	setPC(getPC() + 2); // Increment PC 
+	uint8_t firstByte = RAM->getMemory(PC);
+	uint8_t secondByte = RAM->getMemory(PC + 1);
+	//std::cout << +firstByte << " " << +secondByte << "\n";
+	PC += 2;
 
-	// Merge the bytes into one, then return it
 	uint16_t instruction = (firstByte << 8) | secondByte;
 	return instruction;
 }
+
 
 // Breakdown 16 bit instruction into 4 nibbles (each nibble stored in its own)
 std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
@@ -32,12 +26,13 @@ std::vector<uint8_t> CPU::Decode(uint16_t instruction) {
 	std::uint8_t mask = 0x0F; // Used to get last 4 bits of binary number
 
 	// Loop 4 times, each iteration for a different nibble in instruction
-	for (std::size_t i = 0; i < 4; i++) {
-		instructions[i] = (instruction >> ((3 - i) * 4)) & mask; // shift instruction and mask to get and store current nibble
-	}
 
-	return instructions; 
+	for (std::size_t i = 0; i < 4; i++) {
+		instructions[i] = (instruction >> ((3 - i) * 4)) & mask;
+	}
+	return instructions;
 }
+
 
 // Use 4 variables to store each nibble, and use those nibbles to find the next instruction needed to be executed (done in switch cases)
 void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
@@ -80,56 +75,17 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
+
 		// DXYN (display/draw)
-		case 0xD: {
-			// Get sprite data and output on game window 
-			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
-			Chip8TM->updateMap(X, Y, N, spriteDataBool);
-			//std::cout << "Here" << "\n";
-			Chip8TM->Draw();
-			break;
-		}
-		case 0x0:
-			switch (nibble2) {
-				case 0x0:
-					switch (nibble3) {
-						case 0xE:
-							switch (nibble4) {
-								// 00E0 (clear screen)
-								case 0x0:
-									Chip8TM->resetMap();
-									break;
-								}
-							break;
-						}
-					break;
-				}
-			break;
+		// 00E0 (clear screen)
 		// 1NNN (jump)
-		case 0x1:
-			setPC(NNN);
-			break;
 		// 6XNN (set register VX)
-		case 0x6:
-			Chip8SD->setVRegister(X, NN);
-			break;
 		// 7XNN (add value to register VX)
-		case 0x7: {
-			uint8_t currRV = Chip8SD->getVRegister(X);
-			Chip8SD->setVRegister(X, currRV + NN);
-			break;
-		}
 		// ANNN (set index register I)
-		case 0xA:
-			setI(NNN);
-			break;
+
 		// 3XNN (skip Instruction)
-		case 0x3:
-			if (Chip8SD->getVRegister(X) == NN) {
-				setPC(getPC() + 2);
-			}
-			break;
 		// 4XNN (skip Instruction)
+
 		case 0x4:
 			if (Chip8SD->getVRegister(X) != NN) {
 				setPC(getPC() + 2);
@@ -185,31 +141,55 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					}
 					Chip8SD->setVRegister(X, difference);
 					break;
+
 				}
-				// 8XY1 (store in VX: VX or VY)
-				case 0x1: {
-					uint8_t VX = Chip8SD->getVRegister(X);
-					uint8_t VY = Chip8SD->getVRegister(Y);
-					uint8_t bitwiseOR = VX | VY;
-					Chip8SD->setVRegister(X, bitwiseOR);
-					break;
+				Chip8TM->updateMap(X, Y, N, spriteDataBool);
+				//std::cout << "Here" << "\n";
+				Chip8TM->Draw();
+				break;
+			}
+			case 0x0:
+				switch (nibble2) {
+					case 0x0:
+						switch (nibble3) {
+							case 0xE:
+								switch (nibble4) {
+									case 0x0:
+										//std::cout << +A << " " << +X << " " << +Y << " " << +N << "\n";
+										//std::cout << "Here" << "\n";
+										Chip8TM->resetMap();
+										break;
+								}
+								break;
+						}
+						break;
 				}
-				// 8XY2 (store in VX : VX and VY)
-				case 0x2: {
-					uint8_t VX = Chip8SD->getVRegister(X);
-					uint8_t VY = Chip8SD->getVRegister(Y);
-					uint8_t bitwiseAND = VX & VY;
-					Chip8SD->setVRegister(X, bitwiseAND);
-					break;
+				break;
+			case 0x1:
+				PC = NNN;
+				break;
+			case 0x6:
+				//std::cout << "Here" << +X << "\n";
+				Chip8SD->setVRegister(X, NN);
+				break;
+			case 0x7:
+				{
+				//std::cout << "Here" << +X << "\n";
+				uint8_t currRV = Chip8SD->getVRegister(X);
+				Chip8SD->setVRegister(X, currRV + NN);
+				break;
 				}
-				// 8XY3 (store in VX: VX XOR VY)
-				case 0x3: {
-					uint8_t VX = Chip8SD->getVRegister(X);
-					uint8_t VY = Chip8SD->getVRegister(Y);
-					uint8_t bitwiseXOR = VX ^ VY;
-					Chip8SD->setVRegister(X, bitwiseXOR);
-					break;
+			case 0xA:
+				//std::cout << "Here" << +I << "\n";
+				I = NNN;
+				break;
+			case 0x3:
+				//std::cout << "Here" << +I << "\n";
+				if (Chip8SD->getVRegister(X) == NN) {
+					std::cout << "Here" << "\n";
+					PC += 2;
 				}
+
 				// 8XYE (modern version: shift VX to left, and modify VF)
 				case 0xE: {
 					uint8_t VX = Chip8SD->getVRegister(X);
@@ -228,47 +208,89 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, VX);
 					Chip8SD->setVRegister(0xF, LSB);
 					break;
+
 				}
-			}
-			break;
-		case 0xF:
-			switch (nibble3) {
-				case 0x5:
-					switch (nibble4) {
-						// FX55 (modern version: takes contents of registers V0-VX, and stores it in memory starting from I)
-						case 0x5:
-							for (std::size_t i = 0; i <= X; i++) {
-								uint8_t V = Chip8SD->getVRegister(i);
-								RAM->updateMemory(getI() + i, V);
-							}
-							break;
+			 	break;
+			//case 0x9:
+			//	//std::cout << "Here" <<"\n";
+			//	switch (nibble4) {
+			//		case 0x0:
+			//			if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
+			//				PC += 2;
+			//			}
+			//			break;
+			//	}
+			//	break;
+			case 0x8:
+				switch (nibble4) {
+					case 0x5: {
+						//std::cout << "Here" << "\n";
+						Chip8SD->setVRegister(0xF, 1);
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t VY = Chip8SD->getVRegister(Y);
+						uint8_t difference = VX - VY;
+						if (VX < VY) {
+							std::cout << "here" << "\n";
+							//difference = VY - VX;
+							Chip8SD->setVRegister(0xF, 0);
+						}
+						Chip8SD->setVRegister(X, difference);
+						break;
+					}
+					case 0x7: {
+						//std::cout << "Here" << "\n";
+						Chip8SD->setVRegister(0xF, 1);
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t VY = Chip8SD->getVRegister(Y);
+						uint8_t difference = VY - VX;
+						if (VY < VX) {
+							std::cout << "here" << "\n";
+							//difference = VX - VY;
+							Chip8SD->setVRegister(0xF, 0);
+						}
+						Chip8SD->setVRegister(X, difference);
+						break;
+					}
+					case 0x1: {
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t VY = Chip8SD->getVRegister(Y);
+						uint8_t bitwiseOR = VX | VY;
+						Chip8SD->setVRegister(X, bitwiseOR);
+						break;
+					}
+					case 0x2: {
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t VY = Chip8SD->getVRegister(Y);
+						uint8_t bitwiseAND = VX & VY;
+						Chip8SD->setVRegister(X, bitwiseAND);
+						break;
+					}
+					case 0x3: {
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t VY = Chip8SD->getVRegister(Y);
+						uint8_t bitwiseXOR = VX ^ VY;
+						Chip8SD->setVRegister(X, bitwiseXOR);
+						break;
+					}
+					case 0xE: {
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t MSB = 0x80 & VX;
+						VX <<= 1;
+						MSB >>= 7;
+						Chip8SD->setVRegister(X, VX);
+						Chip8SD->setVRegister(0xF, MSB);
+						break;
+					}
+					case 0x6: {
+						uint8_t VX = Chip8SD->getVRegister(X);
+						uint8_t LSB = 0x01 & VX;
+						VX >>= 1;
+						Chip8SD->setVRegister(X, VX);
+						Chip8SD->setVRegister(0xF, LSB);
+						break;
 					}
 					break;
-				case 0x6:
-					switch (nibble4) {
-						// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
-						case 0x5:
-							for (std::size_t i = 0; i <= X; i++) {
-								uint8_t data = RAM->getMemory(getI() + i);
-								Chip8SD->setVRegister(i, data);
-							}
-							break;
-						}
-					break;
-				case 0x3:
-					switch (nibble4) {
-						// FX33 (Break a number into digits and add it to memory starting from I)
-						case 0x3: {
-							uint8_t VX = Chip8SD->getVRegister(X);
-							for (std::size_t i = 3; i > 0; i--) {
-								uint8_t digit = VX % 10;
-								RAM->updateMemory(getI() + i - 1, digit);
-								VX /= 10;
-							}
-							break;
-						}
-					}
-					break;
+
 				case 0x1:
 					switch (nibble4) {
 						// FX1E (VX is addedd to I)
@@ -276,10 +298,18 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							setI(getI() + VX);
 							break;
+
 						}
-					}
-					break;
+						break;
+					case 0x1: 
+						switch (nibble4) {
+							case 0xE:
+								I += Chip8SD->getVRegister(X);
+								break;
+						}
+						break;
 				}
+
 			break;
 		// Unknown instruction (useful for debugging)
 		default:
@@ -325,40 +355,10 @@ std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
 			spriteDataBool[i][j] = mask & val; // Mask a specific bit of a binary value
 			mask >>= 1;
 			//std::cout << spriteDataBool[i][j];
+
 		}
-		// std::cout << "\n";
 	}
 
-	return spriteDataBool;
-}
-
-// Return current PC Value
-uint16_t CPU::getPC() {
-	return PC;
-}
-
-// Check new PC value is in range before setting it
-void CPU::setPC(uint16_t newPC) {
-	if (0 <= newPC  && newPC < 4096) {
-		PC = newPC;
-	}
-	else {
-		std::cout << "Error: New PC value out of bounds" << "\n";
-	}
-}
-
-// Return current I value
-uint16_t CPU::getI() {
-	return I;
-}
-
-// Check new I value is in range before setting it
-void CPU::setI(uint16_t newI) {
-	if (0 <= newI && newI < 4096) {
-		I = newI;
-	}
-	else {
-		std::cout << "Error: New I value out of bounds" << "\n";
-	}
+	Chip8TM->Destroy();
 }
 
