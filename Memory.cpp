@@ -2,8 +2,11 @@
 #include <vector>
 #include <iostream>
 
+// Initialise memory array
 Memory::Memory() {
-	workingMemory = std::vector<uint8_t>(4096);
+	workingMemory = std::vector<uint8_t>(4096); // Empty 4KB array for storing ROM contents
+	
+	// All fonts for Chip8 (0-F)
 	fonts = { 
 		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0	  
 		0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -24,33 +27,57 @@ Memory::Memory() {
 	};
 	
 	for (size_t i = 0; i < 80; i++) {
-		workingMemory[i + 80] = fonts[i];
+		workingMemory[i + 80] = fonts[i]; // Store fonts in memory
 	}
 }
 
+// Put ROM contents into memory array
 void Memory::setMemory(const std::vector<uint8_t>& gameData) {
 	for (size_t i = 0; i < gameData.size(); i++) {
-		workingMemory[i + 512] = gameData[i];
+		// Check address is not out of bounds 
+		if (i + 512 < 4096) {
+			workingMemory[i + 512] = gameData[i]; // Working memory starts at address 512
+		}
+		else {
+			std::cout << "Error: Initial ROM contents value out of bounds" << "\n";
+		}
 	}
 }
 
+// Get element at given memory address
 uint8_t Memory::getMemory(size_t i) {
-	return workingMemory[i];
+	// Check bounds of accessed address
+	if (0 <= i && i < 4096) {
+		return workingMemory[i];
+	}
+	else{
+		std::cout << "Error: Accessed address for get out of bounds" << "\n";
+		return 0;
+	}
 }
 
+// Update memory at given address
 void Memory::updateMemory(size_t index, uint8_t data) {
-	workingMemory[index] = data;
-	std::cout << +workingMemory[index] << "\n";
+	// Check bounds of accessed address
+	if (0 <= index && index < 4096) {
+		workingMemory[index] = data;
+	}
+	else {
+		std::cout << "Error: Accessed address for set out of bounds " << "\n";
+	}
 }
 
+// Print Fonts and ROM contents in memory
 void Memory::printMemory() {
 	std::cout << "Printing Contents of Working Memory" << "\n";
 
+	// Loop through all fonts and print them
 	std::cout << "Printing Standard Fonts" << "\n";
 	for (size_t i = 80; i < 160; i++) {
-		std::cout << +getMemory(i) << "\n";
+		std::cout << +getMemory(i) << "\n"; 
 	}
 	
+	// Loop through all ROM contents
 	std::cout << "Printing Contents of RAM" << "\n";
 	for (size_t i = 512; i < 1000; i++) {
 		std::cout << +getMemory(i) << "\n";
