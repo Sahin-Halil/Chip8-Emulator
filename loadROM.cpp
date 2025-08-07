@@ -27,7 +27,7 @@ std::vector<uint8_t> loadROM() {
         std::cout << "Error: chip8 file could not be opened"; // Error message incase ROM was not opened
     }
 
-	// Close ROM when done accessing its contents (even if it didn't exist to save space)
+	// Close ROM when done accessing its contents (even if it didn't exist, this is to save space)
     chip8Game.close();
 
     return gameData;
