@@ -50,7 +50,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	//std::cout << getPC() - 2 << " " << instruction << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -79,6 +79,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 00EE (Pop address of the Stack and set it to PC)
 	// 8XY0 (set VX to value of VY)
 	// 8XY4 (store in VX, VX + VY, and modified VF)
+	// 2NNN (push current PC value in Stack, then jump)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -113,6 +114,11 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			break;
 		// 1NNN (jump)
 		case 0x1:
+			setPC(NNN);
+			break;
+		// 2NNN (push then jump)
+		case 0x2:
+			pushToStack(getPC());
 			setPC(NNN);
 			break;
 		// 6XNN (set register VX)
@@ -251,7 +257,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					if (VX < 255 - VY) {
 						Chip8SD->setVRegister(0xF, 0);
 					}
-					Chip8SD->setVRegister(VX, registerSum);
+					Chip8SD->setVRegister(X, registerSum);
 					break;
 				}
 
