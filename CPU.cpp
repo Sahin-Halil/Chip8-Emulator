@@ -76,218 +76,244 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 
 	// 9XY0 (Skip Instruction)
 	// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
+	// 00EE (Pop address of the Stack and set it to PC)
+	// 8XY0 (set VX to value of VY)
+	// 8XY4 (store in VX, VX + VY, and modified VF)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
 		// DXYN (display/draw)
-	case 0xD: {
-		// Get sprite data and output on game window 
-		std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
-		Chip8TM->updateMap(X, Y, N, spriteDataBool);
-		//std::cout << "Here" << "\n";
-		Chip8TM->Draw();
-		break;
-	}
-	case 0x0:
-		switch (nibble2) {
+		case 0xD: {
+			// Get sprite data and output on game window 
+			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
+			Chip8TM->updateMap(X, Y, N, spriteDataBool);
+			//std::cout << "Here" << "\n";
+			Chip8TM->Draw();
+			break;
+		}
 		case 0x0:
-			switch (nibble3) {
-			case 0xE:
-				switch (nibble4) {
-					// 00E0 (clear screen)
+			switch (nibble2) {
 				case 0x0:
-					Chip8TM->resetMap();
+					switch (nibble3) {
+						case 0xE:
+							switch (nibble4) {
+								// 00E0 (clear screen)
+								case 0x0:
+									Chip8TM->resetMap();
+									break;
+								// 00EE (pop Stack)
+								case 0xE:
+									PC = popFromStack();
+									break;
+							}
+							break;
+					}
+					break;
+			}
+			break;
+		// 1NNN (jump)
+		case 0x1:
+			setPC(NNN);
+			break;
+		// 6XNN (set register VX)
+		case 0x6:
+			Chip8SD->setVRegister(X, NN);
+			break;
+		// 7XNN (add value to register VX)
+		case 0x7: {
+			uint8_t currRV = Chip8SD->getVRegister(X);
+			Chip8SD->setVRegister(X, currRV + NN);
+			break;
+		}
+		// ANNN (set index register I)
+		case 0xA:
+			setI(NNN);
+			break;
+		// 3XNN (skip Instruction)
+		case 0x3:
+			if (Chip8SD->getVRegister(X) == NN) {
+				setPC(getPC() + 2);
+			}
+			break;
+		// 4XNN (skip Instruction)
+		case 0x4:
+			if (Chip8SD->getVRegister(X) != NN) {
+				setPC(getPC() + 2);
+			}
+			break;
+		case 0x5:
+			switch (nibble4) {
+				// 5XY0 (skip Instruction)
+				case 0x0:
+					if (Chip8SD->getVRegister(X) == Chip8SD->getVRegister(Y)) {
+						setPC(getPC() + 2);
+					}
+					break;
+				}
+			break;
+		case 0x9:
+			//std::cout << "Here" <<"\n";
+			switch (nibble4) {
+				// 9XY0 (Skip Instruction)
+				case 0x0:
+					if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
+						setPC(getPC() + 2);
+					}
+					break;
+			}
+			break;
+		case 0x8:
+			switch (nibble4) {
+				// 8XY0 (set VX to value of VY)
+				case 0x0: {
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					Chip8SD->setVRegister(X, VY);
+					break;
+				}
+				// 8XY5 (store in VX, VX - VY, and modified VF)
+				case 0x5: {
+					//std::cout << "Here" << "\n";
+					Chip8SD->setVRegister(0xF, 1);
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t difference = VX - VY;
+					if (VX < VY) {
+						// std::cout << "here" << "\n";
+						// difference = VY - VX;
+						Chip8SD->setVRegister(0xF, 0);
+					}
+					Chip8SD->setVRegister(X, difference);
+					break;
+				}
+				// 8XY7 (store in VX : VY - VX, and modified VF)
+				case 0x7: {
+					Chip8SD->setVRegister(0xF, 1);
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t difference = VY - VX;
+					if (VY < VX) {
+						// std::cout << "here" << "\n";
+						// difference = VX - VY;
+						Chip8SD->setVRegister(0xF, 0);
+					}
+					Chip8SD->setVRegister(X, difference);
+					break;
+				}
+				// 8XY1 (store in VX: VX or VY)
+				case 0x1: {
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t bitwiseOR = VX | VY;
+					Chip8SD->setVRegister(X, bitwiseOR);
+					break;
+				}
+				// 8XY2 (store in VX : VX and VY)
+				case 0x2: {
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t bitwiseAND = VX & VY;
+					Chip8SD->setVRegister(X, bitwiseAND);
+					break;
+				}
+				// 8XY3 (store in VX: VX XOR VY)
+				case 0x3: {
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t bitwiseXOR = VX ^ VY;
+					Chip8SD->setVRegister(X, bitwiseXOR);
+					break;
+				}
+				// 8XYE (modern version: shifted VX to left, and modified VF)
+				case 0xE: {
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t MSB = 0x80 & VX;
+					VX <<= 1;
+					MSB >>= 7;
+					Chip8SD->setVRegister(X, VX);
+					Chip8SD->setVRegister(0xF, MSB);
+					break;
+				}
+				// 8XY6 (modern version: shifted VX to right, and modified VF)
+				case 0x6: {
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t LSB = 0x01 & VX;
+					VX >>= 1;
+					Chip8SD->setVRegister(X, VX);
+					Chip8SD->setVRegister(0xF, LSB);
+					break;
+				}
+				// 8XY4 (store in VX, VX + VY, and modified VF)
+				case 0x4: {
+					Chip8SD->setVRegister(0xF, 1);
+					uint8_t VX = Chip8SD->getVRegister(X);
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					uint8_t registerSum = VX + VY;
+					if (VX < 255 - VY) {
+						Chip8SD->setVRegister(0xF, 0);
+					}
+					Chip8SD->setVRegister(VX, registerSum);
+					break;
+				}
+
+			}
+			break;
+		case 0xF:
+			switch (nibble3) {
+				case 0x5:
+					switch (nibble4) {
+						// FX55 (modern version: takes contents of registers V0-VX, and stores it in memory starting from I)
+						case 0x5:
+							for (std::size_t i = 0; i <= X; i++) {
+								uint8_t V = Chip8SD->getVRegister(i);
+								RAM->updateMemory(getI() + i, V);
+							}
+							break;
+					}
+					break;
+				case 0x6:
+					switch (nibble4) {
+						// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
+						case 0x5:
+							for (std::size_t i = 0; i <= X; i++) {
+								uint8_t data = RAM->getMemory(getI() + i);
+								Chip8SD->setVRegister(i, data);
+							}
+							break;
+					}
+					break;
+				case 0x3:
+					switch (nibble4) {
+						// FX33 (Break a number into digits and add it to memory starting from I)
+						case 0x3: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							for (std::size_t i = 3; i > 0; i--) {
+								uint8_t digit = VX % 10;
+								RAM->updateMemory(getI() + i - 1, digit);
+								VX /= 10;
+							}
+							break;
+						}
+					}
+					break;
+				case 0x1:
+					switch (nibble4) {
+						// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
+						case 0xE: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							if (I + VX > 0xFFF) {
+								Chip8SD->setVRegister(0xF, 1);
+							}
+							setI(getI() + VX);
+							break;
+						}
+					}
 					break;
 				}
 				break;
-			}
-			break;
-		}
-		break;
-		// 1NNN (jump)
-	case 0x1:
-		setPC(NNN);
-		break;
-		// 6XNN (set register VX)
-	case 0x6:
-		Chip8SD->setVRegister(X, NN);
-		break;
-		// 7XNN (add value to register VX)
-	case 0x7: {
-		uint8_t currRV = Chip8SD->getVRegister(X);
-		Chip8SD->setVRegister(X, currRV + NN);
-		break;
-	}
-			// ANNN (set index register I)
-	case 0xA:
-		setI(NNN);
-		break;
-		// 3XNN (skip Instruction)
-	case 0x3:
-		if (Chip8SD->getVRegister(X) == NN) {
-			setPC(getPC() + 2);
-		}
-		break;
-		// 4XNN (skip Instruction)
-	case 0x4:
-		if (Chip8SD->getVRegister(X) != NN) {
-			setPC(getPC() + 2);
-		}
-		break;
-	case 0x5:
-		switch (nibble4) {
-			// 5XY0 (skip Instruction)
-		case 0x0:
-			if (Chip8SD->getVRegister(X) == Chip8SD->getVRegister(Y)) {
-				setPC(getPC() + 2);
-			}
-			break;
-		}
-		break;
-	case 0x9:
-		//std::cout << "Here" <<"\n";
-		switch (nibble4) {
-			// 9XY0 (Skip Instruction)
-		case 0x0:
-			if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
-				setPC(getPC() + 2);
-			}
-			break;
-		}
-		break;
-	case 0x8:
-		switch (nibble4) {
-			// 8XY5 (store in VX, VX - VY, and modified VF)
-		case 0x5: {
-			//std::cout << "Here" << "\n";
-			Chip8SD->setVRegister(0xF, 1);
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t VY = Chip8SD->getVRegister(Y);
-			uint8_t difference = VX - VY;
-			if (VX < VY) {
-				// std::cout << "here" << "\n";
-				// difference = VY - VX;
-				Chip8SD->setVRegister(0xF, 0);
-			}
-			Chip8SD->setVRegister(X, difference);
-			break;
-		}
-				// 8XY7 (store in VX : VY - VX, and modified VF)
-		case 0x7: {
-			Chip8SD->setVRegister(0xF, 1);
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t VY = Chip8SD->getVRegister(Y);
-			uint8_t difference = VY - VX;
-			if (VY < VX) {
-				// std::cout << "here" << "\n";
-				// difference = VX - VY;
-				Chip8SD->setVRegister(0xF, 0);
-			}
-			Chip8SD->setVRegister(X, difference);
-			break;
-		}
-				// 8XY1 (store in VX: VX or VY)
-		case 0x1: {
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t VY = Chip8SD->getVRegister(Y);
-			uint8_t bitwiseOR = VX | VY;
-			Chip8SD->setVRegister(X, bitwiseOR);
-			break;
-		}
-				// 8XY2 (store in VX : VX and VY)
-		case 0x2: {
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t VY = Chip8SD->getVRegister(Y);
-			uint8_t bitwiseAND = VX & VY;
-			Chip8SD->setVRegister(X, bitwiseAND);
-			break;
-		}
-				// 8XY3 (store in VX: VX XOR VY)
-		case 0x3: {
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t VY = Chip8SD->getVRegister(Y);
-			uint8_t bitwiseXOR = VX ^ VY;
-			Chip8SD->setVRegister(X, bitwiseXOR);
-			break;
-		}
-				// 8XYE (modern version: shifted VX to left, and modified VF)
-		case 0xE: {
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t MSB = 0x80 & VX;
-			VX <<= 1;
-			MSB >>= 7;
-			Chip8SD->setVRegister(X, VX);
-			Chip8SD->setVRegister(0xF, MSB);
-			break;
-		}
-				// 8XY6 (modern version: shifted VX to right, and modified VF)
-		case 0x6: {
-			uint8_t VX = Chip8SD->getVRegister(X);
-			uint8_t LSB = 0x01 & VX;
-			VX >>= 1;
-			Chip8SD->setVRegister(X, VX);
-			Chip8SD->setVRegister(0xF, LSB);
-			break;
-		}
-		}
-		break;
-	case 0xF:
-		switch (nibble3) {
-		case 0x5:
-			switch (nibble4) {
-				// FX55 (modern version: takes contents of registers V0-VX, and stores it in memory starting from I)
-			case 0x5:
-				for (std::size_t i = 0; i <= X; i++) {
-					uint8_t V = Chip8SD->getVRegister(i);
-					RAM->updateMemory(getI() + i, V);
-				}
-				break;
-			}
-			break;
-		case 0x6:
-			switch (nibble4) {
-				// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
-			case 0x5:
-				for (std::size_t i = 0; i <= X; i++) {
-					uint8_t data = RAM->getMemory(getI() + i);
-					Chip8SD->setVRegister(i, data);
-				}
-				break;
-			}
-			break;
-		case 0x3:
-			switch (nibble4) {
-				// FX33 (Break a number into digits and add it to memory starting from I)
-			case 0x3: {
-				uint8_t VX = Chip8SD->getVRegister(X);
-				for (std::size_t i = 3; i > 0; i--) {
-					uint8_t digit = VX % 10;
-					RAM->updateMemory(getI() + i - 1, digit);
-					VX /= 10;
-				}
-				break;
-			}
-			}
-			break;
-		case 0x1:
-			switch (nibble4) {
-				// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
-			case 0xE: {
-				uint8_t VX = Chip8SD->getVRegister(X);
-				if (I + VX > 0xFFF) {
-					Chip8SD->setVRegister(0xF, 1);
-				}
-				setI(getI() + VX);
-				break;
-			}
-			}
-			break;
-		}
-		break;
 		// Unknown instruction (useful for debugging)
-	default:
-		std::cout << "ERROR" << "\n";
-		break;
+		default:
+			std::cout << "ERROR" << "\n";
+			break;
 	}
 }
 
