@@ -179,16 +179,19 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				// 8XY5 (store in VX, VX - VY, and modified VF)
 				case 0x5: {
 					//std::cout << "Here" << "\n";
-					Chip8SD->setVRegister(0xF, 1);
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t difference = VX - VY;
+					Chip8SD->setVRegister(X, difference);
+					// VF set to 1 if in range, else 0
 					if (VX < VY) {
 						// std::cout << "here" << "\n";
-						// difference = VY - VX;
+						//difference = VY - VX;
 						Chip8SD->setVRegister(0xF, 0);
 					}
-					Chip8SD->setVRegister(X, difference);
+					else {
+						Chip8SD->setVRegister(0xF, 1);
+					}
 					break;
 				}
 				// 8XY7 (store in VX : VY - VX, and modified VF)
@@ -250,14 +253,17 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				}
 				// 8XY4 (store in VX, VX + VY, and modified VF)
 				case 0x4: {
-					Chip8SD->setVRegister(0xF, 1);
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t registerSum = VX + VY;
+					// VF is set to 1 if sum if in range, else 0
+					Chip8SD->setVRegister(X, registerSum);
 					if (VX < 255 - VY) {
 						Chip8SD->setVRegister(0xF, 0);
 					}
-					Chip8SD->setVRegister(X, registerSum);
+					else {
+						Chip8SD->setVRegister(0xF, 1);
+					}
 					break;
 				}
 
