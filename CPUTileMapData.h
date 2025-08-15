@@ -4,8 +4,9 @@
 struct CPUTileMapData {
 	private:
 		// Shared Attributes
-		bool quit;
+		bool Quit;
 		std::vector<uint8_t> V;
+		bool Keys[16];
 
 	public:
 		CPUTileMapData(); // Initialises shared attributes
@@ -17,5 +18,9 @@ struct CPUTileMapData {
 		// Getter and setter for 16 variable registers
 		uint8_t getVRegister(std::size_t vRegister);
 		void setVRegister(std::size_t vRegister, uint8_t registerData);
+
+		// Getter and setter for key presses
+		bool getKeyPress(std::size_t keyPressIndex);
+		void setKeyPress(std::size_t keyPressIndex, bool KeyPress);
 };
 

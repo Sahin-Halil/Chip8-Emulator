@@ -2,18 +2,18 @@
 #include <iostream>
 
 CPUTileMapData::CPUTileMapData() {
-	quit = false; // Game loop is initially on (hence this is false)
+	Quit = false; // Game loop is initially on (hence this is false)
 	V = std::vector<uint8_t>(16); // 16 empty registers
 }
 
 // Check if user clicked to exit
 bool CPUTileMapData::getExitStatus() {
-	return quit;
+	return Quit;
 }
 
 // Set quit to its new status (user may have chose to close game)
 void CPUTileMapData::setExitStatus(bool quitStatus) {
-	quit = quitStatus;
+	Quit = quitStatus;
 }
 
 // Get one of the chosen variable registers (0-F)
@@ -34,5 +34,26 @@ void CPUTileMapData::setVRegister(std::size_t vRegister, uint8_t registerData) {
 	}
 	else {
 		std::cout << "Error: Invalid variable register access in set method" << "\n";
+	}
+}
+
+// Get current key status (if pressed or not)
+bool CPUTileMapData::getKeyPress(std::size_t keyPressIndex) {
+	if (0 <= keyPressIndex  && keyPressIndex < 16) {
+		return Keys[keyPressIndex];
+	}
+	else {
+		std::cout << "Error: Invalid key access in get method" << "\n";
+		return 0;
+	}
+}
+
+// Set key to true or false if pressed 
+void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
+	if (0 <= keyPressIndex && keyPressIndex < 16) {
+		Keys[keyPressIndex] = keyPress;
+	}
+	else {
+		std::cout << "Error: Invalid key access in set method" << "\n";
 	}
 }
