@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 
+// Add a method for constructor which resets values in keys array (this may need to be called after every iteration of CPU loop to reset keys pressed)
+// Add a key up in tilemap events method for when user lets go of input
+// Decrease timers for key based instructions
+
 struct CPUTileMapData {
 	private:
 		// Shared Attributes
@@ -22,5 +26,8 @@ struct CPUTileMapData {
 		// Getter and setter for key presses
 		bool getKeyPress(std::size_t keyPressIndex);
 		void setKeyPress(std::size_t keyPressIndex, bool KeyPress);
+
+		// Reset all key presses
+		void resetKeys();
 };
 

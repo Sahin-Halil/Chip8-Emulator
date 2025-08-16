@@ -4,6 +4,7 @@
 CPUTileMapData::CPUTileMapData() {
 	Quit = false; // Game loop is initially on (hence this is false)
 	V = std::vector<uint8_t>(16); // 16 empty registers
+	resetKeys(); // Reset all keys that were pressed
 }
 
 // Check if user clicked to exit
@@ -55,5 +56,11 @@ void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
 	}
 	else {
 		std::cout << "Error: Invalid key access in set method" << "\n";
+	}
+}
+
+void CPUTileMapData::resetKeys() {
+	for (std::size_t i = 0; i < 16; i++) {
+		Keys[i] = false;
 	}
 }

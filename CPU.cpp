@@ -336,6 +336,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
+		Chip8SD->resetKeys(); // Every loop reset keys
 		Chip8TM->getEvent(); // Check if user triggered an event
 		Chip8TM->remainingTime(); // Run emulator at set speed
 		//Chip8TM->Draw();
