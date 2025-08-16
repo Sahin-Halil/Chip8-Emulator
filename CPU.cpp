@@ -50,7 +50,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -80,6 +80,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 8XY0 (set VX to value of VY)
 	// 8XY4 (store in VX, VX + VY, and modified VF)
 	// 2NNN (push current PC value in Stack, then jump)
+
+	// EX9E
+	// EXA1
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -325,6 +328,34 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					break;
 				}
 				break;
+		case 0xE:
+			switch (nibble3) {
+				case 0x9:
+					switch (nibble4) {
+						case 0xE: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							VX >>= 4;
+							if (Chip8SD->getKeyPress(VX) == true) {
+								setPC(getPC() + 2);
+							}
+							break;
+						}
+					}
+					break;
+				case 0xA:
+					switch (nibble4) {
+						case 0x1: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							VX >>= 4;
+							if (Chip8SD->getKeyPress(VX) == false) {
+								setPC(getPC() + 2);
+							}
+							break;
+						}
+					}
+					break;
+			}
+			break;
 		// Unknown instruction (useful for debugging)
 		default:
 			std::cout << "ERROR" << "\n";

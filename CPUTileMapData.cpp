@@ -61,6 +61,7 @@ void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
 
 void CPUTileMapData::resetKeys() {
 	for (std::size_t i = 0; i < 16; i++) {
-		Keys[i] = false;
+		//Keys[i] = false;
+		std::cout << Keys[i] << "\n";
 	}
 }

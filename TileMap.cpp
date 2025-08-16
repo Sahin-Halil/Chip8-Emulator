@@ -54,7 +54,7 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	resetMap();
 
 	// Initialising speed of loop execution
-	frameRate = 200;
+	frameRate = 20;
 	
 	// Initialising current time stamp
 	timeBefore = 0;
@@ -160,52 +160,52 @@ void TileMap::getEvent() {
 			case SDL_EVENT_KEY_DOWN:
 				switch (e.key.scancode) {
 					case SDL_SCANCODE_1:
-						vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
+						Chip8SD->setKeyPress(0x1, true);
 						break;
 					case SDL_SCANCODE_2:
-						vx = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0x2, true);
 						break;
 					case SDL_SCANCODE_3:
-						vx = { 0xF0, 0x10, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x3, true);
 						break;
 					case SDL_SCANCODE_4:
-						vx = { 0xF0, 0x80, 0x80, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0xC, true);
 						break;
 					case SDL_SCANCODE_Q:
-						vx = { 0x90, 0x90, 0xF0, 0x10, 0x10 };
+						Chip8SD->setKeyPress(0x4, true);
 						break;
 					case SDL_SCANCODE_W:
-						vx = { 0xF0, 0x80, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x5, true);
 						break;
 					case SDL_SCANCODE_E:
-						vx = { 0xF0, 0x80, 0xF0, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x6, true);
 						break;
 					case SDL_SCANCODE_R:
-						vx = { 0xE0, 0x90, 0x90, 0x90, 0xE0 };
+						Chip8SD->setKeyPress(0xD, true);
 						break;
 					case SDL_SCANCODE_A:
-						vx = { 0xF0, 0x10, 0x20, 0x40, 0x40 };
+						Chip8SD->setKeyPress(0x7, true);
 						break;
 					case SDL_SCANCODE_S:
-						vx = { 0xF0, 0x90, 0xF0, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x8, true);
 						break;
 					case SDL_SCANCODE_D:
-						vx = { 0xF0, 0x90, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x9, true);
 						break;
 					case SDL_SCANCODE_F:
-						vx = { 0xF0, 0x80, 0xF0, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0xE, true);
 						break;
 					case SDL_SCANCODE_Z:
-						vx = { 0xF0, 0x90, 0xF0, 0x90, 0x90 };
+						Chip8SD->setKeyPress(0xA, true);
 						break;
 					case SDL_SCANCODE_X:
-						vx = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x0, true);
 						break;
 					case SDL_SCANCODE_C:
-						vx = { 0xE0, 0x90, 0xE0, 0x90, 0xE0 };
+						Chip8SD->setKeyPress(0xB, true);
 						break;
 					case SDL_SCANCODE_V:
-						vx = { 0xF0, 0x80, 0xF0, 0x80, 0x80 };
+						Chip8SD->setKeyPress(0xF, true);
 						break;
 					}
 		}
