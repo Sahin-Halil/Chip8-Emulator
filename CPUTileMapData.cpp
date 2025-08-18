@@ -51,17 +51,21 @@ bool CPUTileMapData::getKeyPress(std::size_t keyPressIndex) {
 
 // Set key to true or false if pressed 
 void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
+	std::cout << "\n";
 	if (0 <= keyPressIndex && keyPressIndex < 16) {
 		Keys[keyPressIndex] = keyPress;
 	}
 	else {
 		std::cout << "Error: Invalid key access in set method" << "\n";
 	}
+	for (std::size_t i = 0; i < 16; i++) {
+		std::cout << Keys[i];
+	}
+	std::cout << "\n";
 }
 
 void CPUTileMapData::resetKeys() {
 	for (std::size_t i = 0; i < 16; i++) {
-		//Keys[i] = false;
-		std::cout << Keys[i] << "\n";
+		Keys[i] = false;
 	}
 }

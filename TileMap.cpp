@@ -147,7 +147,7 @@ void TileMap::remainingTime() {
 // Return the current event happening
 void TileMap::getEvent() {
 	SDL_Event e;
-	std::vector <uint8_t> vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
+
 	//Get event data
 	while (SDL_PollEvent(&e) == true)
 	{
@@ -207,7 +207,60 @@ void TileMap::getEvent() {
 					case SDL_SCANCODE_V:
 						Chip8SD->setKeyPress(0xF, true);
 						break;
-					}
+				}
+				break;
+			case SDL_EVENT_KEY_UP:
+				switch (e.key.scancode) {
+					case SDL_SCANCODE_1:
+						Chip8SD->setKeyPress(0x1, false);
+						break;
+					case SDL_SCANCODE_2:
+						Chip8SD->setKeyPress(0x2, false);
+						break;
+					case SDL_SCANCODE_3:
+						Chip8SD->setKeyPress(0x3, false);
+						break;
+					case SDL_SCANCODE_4:
+						Chip8SD->setKeyPress(0xC, false);
+						break;
+					case SDL_SCANCODE_Q:
+						Chip8SD->setKeyPress(0x4, false);
+						break;
+					case SDL_SCANCODE_W:
+						Chip8SD->setKeyPress(0x5, false);
+						break;
+					case SDL_SCANCODE_E:
+						Chip8SD->setKeyPress(0x6, false);
+						break;
+					case SDL_SCANCODE_R:
+						Chip8SD->setKeyPress(0xD, false);
+						break;
+					case SDL_SCANCODE_A:
+						Chip8SD->setKeyPress(0x7, false);
+						break;
+					case SDL_SCANCODE_S:
+						Chip8SD->setKeyPress(0x8, false);
+						break;
+					case SDL_SCANCODE_D:
+						Chip8SD->setKeyPress(0x9, false);
+						break;
+					case SDL_SCANCODE_F:
+						Chip8SD->setKeyPress(0xE, false);
+						break;
+					case SDL_SCANCODE_Z:
+						Chip8SD->setKeyPress(0xA, false);
+						break;
+					case SDL_SCANCODE_X:
+						Chip8SD->setKeyPress(0x0, false);
+						break;
+					case SDL_SCANCODE_C:
+						Chip8SD->setKeyPress(0xB, false);
+						break;
+					case SDL_SCANCODE_V:
+						Chip8SD->setKeyPress(0xF, false);
+						break;
+				}
+				break;
 		}
 	}
 }
