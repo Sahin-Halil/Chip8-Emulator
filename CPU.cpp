@@ -7,12 +7,14 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	PC = 512;
 	I = 0;
 	Stack = {};
+	delayTimer = 60;
+	soundTimer = 60;
 
 	// Initialising speed of loop execution
-	frameRate = 200;
+	gameFrameRate = 200;
 
 	// Initialising current time stamp
-	timeBefore = 0;
+	gameTimeBefore = 0;
 
 	// Move objects into respective pointers
 	RAM = std::move(ram);
@@ -437,10 +439,42 @@ void CPU::pushToStack(uint16_t address) {
 	}
 }
 
+
+// Return current time in delay register
+uint8_t CPU::getDelayTimer() {
+	return delayTimer;
+}
+
+// Check new delay time isn't negative then add new delay time to delay register 
+void CPU::setDelayTimer(uint8_t newDelayTime) {
+	if (newDelayTime >= 0) {
+		delayTimer = newDelayTime;
+	}
+	else {
+		std::cout << "Error: A negative delay time is possible" << "\n";
+	}
+}
+
+// Return current time in sound register
+uint8_t CPU::getSoundTimer() {
+	return soundTimer;
+}
+
+// Check new sound time isn't negative then add new sound time to sound register
+void CPU::setSoundTimer(uint8_t newSoundTimer) {
+	if (newSoundTimer >= 0) {
+		soundTimer = newSoundTimer;
+	}
+	else {
+		std::cout << "Error: A negative sound time is possible" << "\n";
+	}
+}
+
+
 // Keeps looping until enough time has passed
 void CPU::remainingTime() {
-	while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
+	while (SDL_GetTicks() - gameTimeBefore < 1000 / gameFrameRate) {
 		continue;
 	}
-	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
+	gameTimeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
 }

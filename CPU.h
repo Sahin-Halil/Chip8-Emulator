@@ -11,18 +11,18 @@ private:
 	uint16_t PC;
 	uint16_t I;
 	std::vector<uint16_t> Stack;
+	uint8_t delayTimer;
+	uint8_t soundTimer;
 
 	// Game loop essentials
-	int frameRate;
-	uint64_t timeBefore;
+	int gameFrameRate;
+	uint64_t gameTimeBefore;
 
 	// Object pointers needed to work with CPU
 	std::unique_ptr<Memory> RAM;
 	std::unique_ptr<TileMap> Chip8TM;
 	std::shared_ptr<CPUTileMapData> Chip8SD; // Shared attributes
-	//stack;
-	//delayTimer;
-	//soundTimer;
+
 public:
 	CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::shared_ptr<CPUTileMapData> chip8sd); // Initialises CPU parts and pointers for objects 
 	uint16_t Fetch(); // Fetch next instruction to be decoded
@@ -43,5 +43,13 @@ public:
 	// Pop and Push for Stack
 	uint16_t popFromStack();
 	void pushToStack(uint16_t address);
+
+	// Getter and Setter for delayTimer
+	uint8_t getDelayTimer();
+	void setDelayTimer(uint8_t newDelayTime);
+
+	// Getter and Setter for soundTimer
+	uint8_t getSoundTimer();
+	void setSoundTimer(uint8_t newSoundTime);
 };
 
