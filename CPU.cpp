@@ -8,6 +8,12 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	I = 0;
 	Stack = {};
 
+	// Initialising speed of loop execution
+	frameRate = 200;
+
+	// Initialising current time stamp
+	timeBefore = 0;
+
 	// Move objects into respective pointers
 	RAM = std::move(ram);
 	Chip8TM = std::move(chip8tm);
@@ -337,7 +343,7 @@ void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
 		Chip8TM->getEvent(); // Check if user triggered an event
-		Chip8TM->remainingTime(); // Run emulator at set speed
+		remainingTime(); // Run emulator at set speed
 		//Chip8TM->Draw();
 
 		// Fetch - Decode - Execute
@@ -429,4 +435,12 @@ void CPU::pushToStack(uint16_t address) {
 	else {
 		std::cout << "Error: Too many addresses in the Stack" << "\n";
 	}
+}
+
+// Keeps looping until enough time has passed
+void CPU::remainingTime() {
+	while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
+		continue;
+	}
+	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
 }

@@ -24,10 +24,6 @@ class TileMap
 		SDL_FRect textureRect;
 		bool tileMap[TILEMAP_HEIGHT][TILEMAP_WIDTH];
 
-		// Game loop essentials
-		int frameRate;
-		uint64_t timeBefore;
-
 		// Shared Attributes
 		std::shared_ptr<CPUTileMapData> Chip8SD;
 
@@ -37,7 +33,6 @@ class TileMap
 		void Draw(); // Ouputs latest contents of tilemap to game window
 		void resetMap(); // Resets all pixels on tilemap back to false (off)
 		void Destroy(); // Destroys game window during code termination
-		void remainingTime(); // Wait until time is up before starting next loop cycle (frame)
 		void getEvent(); // Get event from user
 };
 

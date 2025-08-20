@@ -53,12 +53,6 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
 
-	// Initialising speed of loop execution
-	frameRate = 200;
-	
-	// Initialising current time stamp
-	timeBefore = 0;
-
 	// Initialising Shared Data
 	Chip8SD = std::move(chip8sd);
 }
@@ -134,14 +128,6 @@ void TileMap::Destroy() {
 
 	// End program once all necessary attributes have been destroyed
 	SDL_Quit();
-}
-
-// Keeps looping until enough time has passed
-void TileMap::remainingTime() {
-	while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
-		continue;
-	}
-	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
 }
 
 // Return the current event happening
