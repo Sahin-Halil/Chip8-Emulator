@@ -468,17 +468,35 @@ void CPU::setSoundTimer(uint8_t newSoundTimer) {
 	}
 }
 
-// Keeps looping until enough time has passed
+// Update timers and display
+void CPU::updateEmulationComponents() {
+	// Decrease delay and sound timer if they are greater than 0
+	if (getDelayTimer() > 0) {
+		setDelayTimer(getDelayTimer() - 1);
+	}
+	if (getSoundTimer() > 0) {
+		setSoundTimer(getSoundTimer() - 1);
+	}
+	Chip8TM->Draw(); // Update current contents of the display
+}
+
+// Controls how many instructions are run per frame
 void CPU::emulationRemainingTime() {
+	// Check how many instructions have been currently executed
 	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
-		Chip8TM->Draw();
+		// Update system components
+		updateEmulationComponents();
+		// Make program wait until time for current frame is up
 		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
 			continue;
 		}
-		emulationTimeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
+		// Update to current timestamps to repeat for next frame
+		emulationTimeBefore = SDL_GetTicks(); 
 		instructionsFrameCounter = 0;
 	}
 	else {
-		instructionsFrameCounter++;
+		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
 	}
 }
+
+
