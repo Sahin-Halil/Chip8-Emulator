@@ -7,14 +7,14 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	PC = 512;
 	I = 0;
 	Stack = {};
-	delayTimer = 60;
-	soundTimer = 60;
+	delayTimer = 0;
+	soundTimer = 0;
 
-	// Initialising speed of loop execution
-	gameFrameRate = 200;
-
-	// Initialising current time stamp
-	gameTimeBefore = 0;
+	// Control speed of emulation loop
+	emulationTimeBefore = 0; 
+	emulationFrameRate = 60;
+	instructionsPerSecond = 700;
+	instructionsFrameCounter = 0;
 
 	// Move objects into respective pointers
 	RAM = std::move(ram);
@@ -97,7 +97,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
 			//std::cout << "Here" << "\n";
-			Chip8TM->Draw();
 			break;
 		}
 		case 0x0:
@@ -345,8 +344,7 @@ void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
 		Chip8TM->getEvent(); // Check if user triggered an event
-		remainingTime(); // Run emulator at set speed
-		//Chip8TM->Draw();
+		emulationRemainingTime(); // Run emulator at set speed
 
 		// Fetch - Decode - Execute
 		uint16_t instruction = Fetch();
@@ -470,11 +468,17 @@ void CPU::setSoundTimer(uint8_t newSoundTimer) {
 	}
 }
 
-
 // Keeps looping until enough time has passed
-void CPU::remainingTime() {
-	while (SDL_GetTicks() - gameTimeBefore < 1000 / gameFrameRate) {
-		continue;
+void CPU::emulationRemainingTime() {
+	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
+		Chip8TM->Draw();
+		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
+			continue;
+		}
+		emulationTimeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
+		instructionsFrameCounter = 0;
 	}
-	gameTimeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
+	else {
+		instructionsFrameCounter++;
+	}
 }
