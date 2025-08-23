@@ -4,7 +4,7 @@
 // Setups tilemap and game window
 TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Checks if the SDL library is initialised and working
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		SDL_Log("Couldn't initialise SDL: %s\n", SDL_GetError());
 		return;
 	}
@@ -52,6 +52,24 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
+
+	// Set audio spec
+	SDL_AudioSpec audioSpec;
+	audioSpec.format = SDL_AUDIO_F32;
+	audioSpec.channels = 1;
+	audioSpec.freq = 44100;
+
+	// Open audio device
+	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec, NULL, NULL);
+
+	// Check to see if stream was created
+	if (!stream) {
+		SDL_Log("Couldn't create audio stream: %s\n", SDL_GetError());
+		return;
+	}
+
+	// Unpause audio (usually off to begin with)
+	SDL_ResumeAudioStreamDevice(stream);
 
 	// Initialising Shared Data
 	Chip8SD = std::move(chip8sd);
@@ -121,6 +139,7 @@ void TileMap::resetMap() {
 // Destroys all game window relevant attributes in order to prevent memory leaks
 void TileMap::Destroy() {
 	// These attributes need to be manually deleted when terminating program
+	SDL_DestroyAudioStream(stream);
 	SDL_DestroyTexture(whiteTexture);
 	SDL_DestroyTexture(blackTexture);
 	SDL_DestroyRenderer(renderer);

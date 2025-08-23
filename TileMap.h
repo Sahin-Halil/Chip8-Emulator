@@ -24,6 +24,10 @@ class TileMap
 		SDL_FRect textureRect;
 		bool tileMap[TILEMAP_HEIGHT][TILEMAP_WIDTH];
 
+		// Audio
+		SDL_AudioStream* stream;
+
+
 		// Shared Attributes
 		std::shared_ptr<CPUTileMapData> Chip8SD;
 
