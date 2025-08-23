@@ -53,13 +53,17 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
 
-	// Set audio spec
-	SDL_AudioSpec audioSpec;
-	audioSpec.format = SDL_AUDIO_F32;
-	audioSpec.channels = 1;
-	audioSpec.freq = 44100;
+	// Initialise audio data
+	audioData = NULL;
+	audioDataLen = 0;
 
-	// Open audio device
+	// Check if audio can be loaded from .wav file
+	if (!SDL_LoadWAV("Audio-Files/beep-02.wav", &audioSpec, &audioData, &audioDataLen)) {
+		SDL_Log("Couldn't load audio from .wave file: %s", SDL_GetError());
+		return;
+	}
+
+	// Open audio device stream
 	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec, NULL, NULL);
 
 	// Check to see if stream was created
@@ -104,6 +108,12 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	}
 }
 
+// Add audio to stream to be played 
+void TileMap::getAudio() {
+	// Figure out how to make this end with sound timer
+	SDL_PutAudioStreamData(stream, audioData, audioDataLen);
+}
+
 // Nested loop to output contents of tilemap to game window
 void TileMap::Draw() {
 	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
@@ -139,6 +149,7 @@ void TileMap::resetMap() {
 // Destroys all game window relevant attributes in order to prevent memory leaks
 void TileMap::Destroy() {
 	// These attributes need to be manually deleted when terminating program
+	SDL_free(audioData);
 	SDL_DestroyAudioStream(stream);
 	SDL_DestroyTexture(whiteTexture);
 	SDL_DestroyTexture(blackTexture);

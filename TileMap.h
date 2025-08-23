@@ -24,10 +24,12 @@ class TileMap
 		SDL_FRect textureRect;
 		bool tileMap[TILEMAP_HEIGHT][TILEMAP_WIDTH];
 
-		// Audio
+		// Audio essentials
+		Uint8* audioData;
+		Uint32 audioDataLen;
+		SDL_AudioSpec audioSpec;
 		SDL_AudioStream* stream;
-
-
+		
 		// Shared Attributes
 		std::shared_ptr<CPUTileMapData> Chip8SD;
 
@@ -38,5 +40,6 @@ class TileMap
 		void resetMap(); // Resets all pixels on tilemap back to false (off)
 		void Destroy(); // Destroys game window during code termination
 		void getEvent(); // Get event from user
+		void getAudio(); // Play audio
 };
 
