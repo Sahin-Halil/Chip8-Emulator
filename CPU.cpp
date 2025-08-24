@@ -89,6 +89,10 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 8XY4 (store in VX, VX + VY, and modified VF)
 	// 2NNN (push current PC value in Stack, then jump)
 
+	// FX07 (sets VX to the current value of the delay timer)
+	// FX15 (sets the delay timer to the value in VX)
+	// FX18 (sets the sound timer to the value in VX)
+
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
 		// DXYN (display/draw)
@@ -328,10 +332,26 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						// FX15 (sets the delay timer to the value in VX)
+						case 0x5:
+							Chip8SD->getVRegister(X);
+							break;
+						// FX18 (sets the sound timer to the value in VX)
+						case 0x8:
+							setSoundTimer(Chip8SD->getVRegister(X));
+							break;
 					}
 					break;
-				}
-				break;
+				case 0x0:
+					switch (nibble4) {
+						// FX07 (sets VX to the current value of the delay timer)
+						case 0x7:
+							Chip8SD->setVRegister(X, getDelayTimer());
+							break;
+					}
+					break;
+			}
+			break;
 		// Unknown instruction (useful for debugging)
 		default:
 			std::cout << "ERROR" << "\n";
