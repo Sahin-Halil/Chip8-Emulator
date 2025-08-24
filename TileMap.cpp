@@ -110,8 +110,10 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 
 // Add audio to stream to be played 
 void TileMap::getAudio() {
-	// Figure out how to make this end with sound timer
-	SDL_PutAudioStreamData(stream, audioData, audioDataLen);
+	// When audio queue is empty, put audio back into queue
+	if (SDL_GetAudioStreamQueued(stream) <= 0) {
+		SDL_PutAudioStreamData(stream, audioData, audioDataLen);
+	}
 }
 
 // Nested loop to output contents of tilemap to game window

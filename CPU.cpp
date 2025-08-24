@@ -8,7 +8,7 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	I = 0;
 	Stack = {};
 	delayTimer = 0;
-	soundTimer = 100;
+	soundTimer = 300;
 
 	// Control speed of emulation loop
 	emulationTimeBefore = 0; 
