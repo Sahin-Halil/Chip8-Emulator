@@ -8,7 +8,7 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	I = 0;
 	Stack = {};
 	delayTimer = 0;
-	soundTimer = 300;
+	soundTimer = 0;
 
 	// Control speed of emulation loop
 	emulationTimeBefore = 0; 
@@ -495,8 +495,7 @@ void CPU::updateEmulationComponents() {
 		setDelayTimer(getDelayTimer() - 1);
 	}
 	if (getSoundTimer() > 0) {
-		Chip8TM->getAudio();
-		std::cout << +getSoundTimer() << "\n";
+		Chip8TM->getAudio(); // Play audio
 		setSoundTimer(getSoundTimer() - 1);
 	}
 	Chip8TM->Draw(); // Update current contents of the display
