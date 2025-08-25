@@ -7,6 +7,14 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	PC = 512;
 	I = 0;
 	Stack = {};
+	delayTimer = 0;
+	soundTimer = 0;
+
+	// Control speed of emulation loop
+	emulationTimeBefore = 0; 
+	emulationFrameRate = 60;
+	instructionsPerSecond = 700;
+	instructionsFrameCounter = 0;
 
 	// Move objects into respective pointers
 	RAM = std::move(ram);
@@ -84,6 +92,10 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// EX9E
 	// EXA1
 
+	// FX07 (sets VX to the current value of the delay timer)
+	// FX15 (sets the delay timer to the value in VX)
+	// FX18 (sets the sound timer to the value in VX)
+
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
 		// DXYN (display/draw)
@@ -92,7 +104,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
 			//std::cout << "Here" << "\n";
-			Chip8TM->Draw();
 			break;
 		}
 		case 0x0:
@@ -313,6 +324,14 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						}
 					}
 					break;
+				case 0x0:
+					switch (nibble4) {
+						// FX07 (sets VX to the current value of the delay timer)
+						case 0x7:
+							Chip8SD->setVRegister(X, getDelayTimer());
+							break;
+						}
+						break;
 				case 0x1:
 					switch (nibble4) {
 						// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
@@ -324,10 +343,18 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						// FX15 (sets the delay timer to the value in VX)
+						case 0x5:
+							Chip8SD->getVRegister(X);
+							break;
+						// FX18 (sets the sound timer to the value in VX)
+						case 0x8:
+							setSoundTimer(Chip8SD->getVRegister(X));
+							break;
 					}
 					break;
-				}
-				break;
+			}
+			break;
 		case 0xE:
 			switch (nibble3) {
 				case 0x9:
@@ -372,9 +399,8 @@ void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
 		//Chip8SD->resetKeys(); // Every loop reset keys
+		emulationRemainingTime(); // Run emulator at set speed
 		Chip8TM->getEvent(); // Check if user triggered an event
-		Chip8TM->remainingTime(); // Run emulator at set speed
-		//Chip8TM->Draw();
 
 		// Fetch - Decode - Execute
 		uint16_t instruction = Fetch();
@@ -466,3 +492,68 @@ void CPU::pushToStack(uint16_t address) {
 		std::cout << "Error: Too many addresses in the Stack" << "\n";
 	}
 }
+
+
+// Return current time in delay register
+uint8_t CPU::getDelayTimer() {
+	return delayTimer;
+}
+
+// Check new delay time isn't negative then add new delay time to delay register 
+void CPU::setDelayTimer(uint8_t newDelayTime) {
+	if (newDelayTime >= 0) {
+		delayTimer = newDelayTime;
+	}
+	else {
+		std::cout << "Error: A negative delay time is possible" << "\n";
+	}
+}
+
+// Return current time in sound register
+uint8_t CPU::getSoundTimer() {
+	return soundTimer;
+}
+
+// Check new sound time isn't negative then add new sound time to sound register
+void CPU::setSoundTimer(uint8_t newSoundTimer) {
+	if (newSoundTimer >= 0) {
+		soundTimer = newSoundTimer;
+	}
+	else {
+		std::cout << "Error: A negative sound time is possible" << "\n";
+	}
+}
+
+// Update timers and display
+void CPU::updateEmulationComponents() {
+	// Decrease delay and sound timer if they are greater than 0
+	if (getDelayTimer() > 0) {
+		setDelayTimer(getDelayTimer() - 1);
+	}
+	if (getSoundTimer() > 0) {
+		Chip8TM->getAudio(); // Play audio
+		setSoundTimer(getSoundTimer() - 1);
+	}
+	Chip8TM->Draw(); // Update current contents of the display
+}
+
+// Controls how many instructions are run per frame
+void CPU::emulationRemainingTime() {
+	// Check how many instructions have been currently executed
+	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
+		// Update system components
+		updateEmulationComponents();
+		// Make program wait until time for current frame is up
+		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
+			continue;
+		}
+		// Update to current timestamps to repeat for next frame
+		emulationTimeBefore = SDL_GetTicks(); 
+		instructionsFrameCounter = 0;
+	}
+	else {
+		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
+	}
+}
+
+
