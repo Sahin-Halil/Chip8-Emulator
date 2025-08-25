@@ -58,7 +58,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -114,6 +114,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							switch (nibble4) {
 								// 00E0 (clear screen)
 								case 0x0:
+									std::cout << "here to clear screen" << "\n";
 									Chip8TM->resetMap();
 									break;
 								// 00EE (pop Stack)
@@ -362,9 +363,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0xE: {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							uint8_t lowestNibble = VX & 0xF;
-							std::cout << +lowestNibble << "\n";
+							//std::cout << +lowestNibble << "\n";
 							if (Chip8SD->getKeyPress(lowestNibble) == true) {
-								std::cout << "here" << "\n";
+								//std::cout << "here" << "\n";
 								setPC(getPC() + 2);
 							}
 							break;
@@ -376,7 +377,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x1: {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							uint8_t lowestNibble = VX & 0xF;
-							std::cout << +lowestNibble << "\n";
+							//std::cout << +lowestNibble << "\n";
 							if (Chip8SD->getKeyPress(lowestNibble) == false) {
 								//std::cout << "here" << "\n";
 								setPC(getPC() + 2);
@@ -438,6 +439,38 @@ std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
 	return spriteDataBool;
 }
 
+// Update timers and display
+void CPU::updateEmulationComponents() {
+	// Decrease delay and sound timer if they are greater than 0
+	if (getDelayTimer() > 0) {
+		setDelayTimer(getDelayTimer() - 1);
+	}
+	if (getSoundTimer() > 0) {
+		Chip8TM->getAudio(); // Play audio
+		setSoundTimer(getSoundTimer() - 1);
+	}
+	Chip8TM->Draw(); // Update current contents of the display
+}
+
+// Controls how many instructions are run per frame
+void CPU::emulationRemainingTime() {
+	// Check how many instructions have been currently executed
+	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
+		// Update system components
+		updateEmulationComponents();
+		// Make program wait until time for current frame is up
+		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
+			continue;
+		}
+		// Update to current timestamps to repeat for next frame
+		emulationTimeBefore = SDL_GetTicks(); 
+		instructionsFrameCounter = 0;
+	}
+	else {
+		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
+	}
+}
+
 // Return current PC Value
 uint16_t CPU::getPC() {
 	return PC;
@@ -493,7 +526,6 @@ void CPU::pushToStack(uint16_t address) {
 	}
 }
 
-
 // Return current time in delay register
 uint8_t CPU::getDelayTimer() {
 	return delayTimer;
@@ -524,36 +556,5 @@ void CPU::setSoundTimer(uint8_t newSoundTimer) {
 	}
 }
 
-// Update timers and display
-void CPU::updateEmulationComponents() {
-	// Decrease delay and sound timer if they are greater than 0
-	if (getDelayTimer() > 0) {
-		setDelayTimer(getDelayTimer() - 1);
-	}
-	if (getSoundTimer() > 0) {
-		Chip8TM->getAudio(); // Play audio
-		setSoundTimer(getSoundTimer() - 1);
-	}
-	Chip8TM->Draw(); // Update current contents of the display
-}
-
-// Controls how many instructions are run per frame
-void CPU::emulationRemainingTime() {
-	// Check how many instructions have been currently executed
-	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
-		// Update system components
-		updateEmulationComponents();
-		// Make program wait until time for current frame is up
-		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
-			continue;
-		}
-		// Update to current timestamps to repeat for next frame
-		emulationTimeBefore = SDL_GetTicks(); 
-		instructionsFrameCounter = 0;
-	}
-	else {
-		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
-	}
-}
 
 

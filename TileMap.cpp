@@ -84,11 +84,12 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	// Set x in range 0 - 63 and make sure it doesn't go off edge of screen
 	std::size_t x_start = Chip8SD->getVRegister(x) % TILEMAP_WIDTH;
 	std::size_t x_end = (x_start + 8 < TILEMAP_WIDTH) ? x_start + 8 : TILEMAP_WIDTH;
+	//std::size_t x_end = x_start + 8;
 	
 	// Set y in range 0 - 32 and make sure it doesn't go off edge of screen
 	std::size_t y_start = Chip8SD->getVRegister(y) % TILEMAP_HEIGHT;
-	//std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
-	std::size_t y_end = y_start + N;
+	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
+	//std::size_t y_end = y_start + N;
 	//Chip8SD->setVRegister(0xF, 1);
 
 	// Both tilemap and updated portion are 2D arrays
@@ -141,7 +142,7 @@ void TileMap::Draw() {
 // Nested loop to set every pixel in tilemap to false (off)
 void TileMap::resetMap() {
 	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
-		for (std::size_t j = 0; j < TILEMAP_HEIGHT; j++) {
+		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
 			// tilemap pixel is reset on this line
 			tileMap[i][j] = false;
 		}
@@ -176,6 +177,7 @@ void TileMap::getEvent() {
 				break;
 			// All possible key presses (0-F)
 			case SDL_EVENT_KEY_DOWN:
+				// If key is held down, then add it mark it true in key press array
 				switch (e.key.scancode) {
 					case SDL_SCANCODE_1:
 						Chip8SD->setKeyPress(0x1, true);
@@ -227,6 +229,7 @@ void TileMap::getEvent() {
 						break;
 				}
 				break;
+			// If key is held released, then mark it false in key press array
 			case SDL_EVENT_KEY_UP:
 				switch (e.key.scancode) {
 					case SDL_SCANCODE_1:
