@@ -61,7 +61,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
-	// 0NNN (Push current value in PC to stack, then jump to NNN)
+	// 0NNN (jump to NNN)
 	// DXYN (display/draw)
 	// 00E0 (clear screen)
 	// 1NNN (jump)
@@ -117,9 +117,8 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				case 0x0EE:
 					PC = popFromStack();
 					break;
-				// 0NNN (push then jump)
+				// 0NNN (jump instruction)
 				default:
-					pushToStack(getPC());
 					setPC(NNN);
 					break;
 			}
