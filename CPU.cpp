@@ -63,7 +63,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -104,6 +104,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 0NNN (jump to NNN)
 	// BNNN (jump to NNN + V0) 
 	// CXNN (set VX to bitwise AND between random number and NN)
+	// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -370,16 +371,19 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x7:
 							Chip8SD->setVRegister(X, getDelayTimer());
 							break;
+						// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
 						case 0xA: {
-							bool flag = false;
+							bool flag = false; // set to true if key was released
+							
+							// Loop through all key ups to check for a release
 							for (std::size_t i = 0; i < 16; i++) {
 								if (Chip8SD->checkKeyUp(i) != 255) {
-									std::cout << "here" << "\n";
-									Chip8SD->setVRegister(X, i);
+									Chip8SD->setVRegister(X, (uint8_t) i); // set VX to released key
 									flag = true;
 									break;
 								}
 							}
+							// If no key was released then halt emulator execution
 							if (flag == false) {
 								setPC(getPC() - 2);
 							}
@@ -519,7 +523,7 @@ void CPU::updateEmulationComponents() {
 		Chip8TM->getAudio(); // Play audio
 		setSoundTimer(getSoundTimer() - 1);
 	}
-	//Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
+	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
 	Chip8TM->Draw(); // Update current contents of the display
 }
 
@@ -531,11 +535,10 @@ void CPU::emulationRemainingTime() {
 		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
 			continue;
 		}
-		// Update system components
-		updateEmulationComponents();
 		// Update to current timestamps to repeat for next frame
 		emulationTimeBefore = SDL_GetTicks(); 
 		instructionsFrameCounter = 0;
+		updateEmulationComponents(); // Update system components
 	}
 	else {
 		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
