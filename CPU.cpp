@@ -13,7 +13,7 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	// Control speed of emulation loop
 	emulationTimeBefore = 0; 
 	emulationFrameRate = 60;
-	instructionsPerSecond = 700;
+	instructionsPerSecond = 20;
 	instructionsFrameCounter = 0;
 
 	// Move objects into respective pointers
@@ -120,9 +120,18 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 								case 0xE:
 									PC = popFromStack();
 									break;
+								default:
+									std::cout << "ERROR" << "\n";
+									break;
 							}
 							break;
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
 					break;
 			}
 			break;
@@ -169,6 +178,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						setPC(getPC() + 2);
 					}
 					break;
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
 				}
 			break;
 		case 0x9:
@@ -179,6 +191,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
 						setPC(getPC() + 2);
 					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
 					break;
 			}
 			break;
@@ -283,7 +298,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					}
 					break;
 				}
-
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
 			}
 			break;
 		case 0xF:
@@ -297,6 +314,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 								RAM->updateMemory(getI() + i, V);
 							}
 							break;
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
 					break;
 				case 0x6:
@@ -307,6 +327,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 								uint8_t data = RAM->getMemory(getI() + i);
 								Chip8SD->setVRegister(i, data);
 							}
+							break;
+						default:
+							std::cout << "ERROR" << "\n";
 							break;
 					}
 					break;
@@ -322,6 +345,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
 					break;
 				case 0x0:
@@ -330,8 +356,11 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x7:
 							Chip8SD->setVRegister(X, getDelayTimer());
 							break;
-						}
-						break;
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
+					}
+					break;
 				case 0x1:
 					switch (nibble4) {
 						// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
@@ -351,7 +380,13 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x8:
 							setSoundTimer(Chip8SD->getVRegister(X));
 							break;
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
 					break;
 			}
 			break;
@@ -369,6 +404,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
 					break;
 				case 0xA:
@@ -383,7 +421,13 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
 					break;
 			}
 			break;
