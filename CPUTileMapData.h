@@ -11,7 +11,8 @@ struct CPUTileMapData {
 		// Shared Attributes
 		bool Quit;
 		std::vector<uint8_t> V;
-		bool Keys[16];
+		bool keysDown[16];
+		bool keysUp[16];
 
 	public:
 		CPUTileMapData(); // Initialises shared attributes
@@ -27,5 +28,8 @@ struct CPUTileMapData {
 		// Getter and setter for key presses
 		bool getKeyPress(std::size_t keyPressIndex);
 		void setKeyPress(std::size_t keyPressIndex, bool KeyPress);
+
+		void resetKeyUps(); // Reset all key ups
+		bool checkKeyUp(); // Check if key has been released
 };
 

@@ -504,6 +504,7 @@ void CPU::updateEmulationComponents() {
 		Chip8TM->getAudio(); // Play audio
 		setSoundTimer(getSoundTimer() - 1);
 	}
+	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
 	Chip8TM->Draw(); // Update current contents of the display
 }
 

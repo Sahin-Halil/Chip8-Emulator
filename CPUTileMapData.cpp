@@ -6,8 +6,9 @@ CPUTileMapData::CPUTileMapData() {
 	V = std::vector<uint8_t>(16); // 16 empty registers
 	// Initialise all values in keys array to false
 	for (std::size_t i = 0; i < 16; i++) {
-		Keys[i] = false;
+		keysDown[i] = false;
 	}
+	resetKeyUps(); // Initialise all key ups to true
 }
 
 // Check if user clicked to exit
@@ -44,7 +45,7 @@ void CPUTileMapData::setVRegister(std::size_t vRegister, uint8_t registerData) {
 // Get current key status (if pressed or not)
 bool CPUTileMapData::getKeyPress(std::size_t keyPressIndex) {
 	if (0 <= keyPressIndex  && keyPressIndex < 16) {
-		return Keys[keyPressIndex];
+		return keysDown[keyPressIndex];
 	}
 	else {
 		std::cout << "Error: Invalid key access in get method" << "\n";
@@ -55,9 +56,32 @@ bool CPUTileMapData::getKeyPress(std::size_t keyPressIndex) {
 // Set key to true or false if pressed 
 void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
 	if (0 <= keyPressIndex && keyPressIndex < 16) {
-		Keys[keyPressIndex] = keyPress;
+		// set to true if user released key
+		if (keyPress == false) {
+			keysUp[keyPressIndex] = true;
+		}
+		keysDown[keyPressIndex] = keyPress;
 	}
 	else {
 		std::cout << "Error: Invalid key access in set method" << "\n";
 	}
+}
+
+
+// Reset all keys that have been released after sometime 
+void CPUTileMapData::resetKeyUps() {
+	for (std::size_t i = 0; i < 16; i++) {
+		keysUp[i] = true;
+	}
+}
+
+// Loop and check if key has been released
+bool CPUTileMapData::checkKeyUp() {
+	for (std::size_t i = 0; i < 16; i++) {
+		if (keysUp[i] == false) {
+			return true;
+		}
+	}
+	return false;
+
 }
