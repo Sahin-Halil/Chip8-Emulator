@@ -4,7 +4,7 @@
 // Setups tilemap and game window
 TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Checks if the SDL library is initialised and working
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		SDL_Log("Couldn't initialise SDL: %s\n", SDL_GetError());
 		return;
 	}
@@ -53,11 +53,27 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
 
-	// Initialising speed of loop execution
-	frameRate = 200;
-	
-	// Initialising current time stamp
-	timeBefore = 0;
+	// Initialise audio data
+	audioData = NULL;
+	audioDataLen = 0;
+
+	// Check if audio can be loaded from .wav file
+	if (!SDL_LoadWAV("Audio-Files/beep-02.wav", &audioSpec, &audioData, &audioDataLen)) {
+		SDL_Log("Couldn't load audio from .wave file: %s", SDL_GetError());
+		return;
+	}
+
+	// Open audio device stream
+	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec, NULL, NULL);
+
+	// Check to see if stream was created
+	if (!stream) {
+		SDL_Log("Couldn't create audio stream: %s\n", SDL_GetError());
+		return;
+	}
+
+	// Unpause audio (usually off to begin with)
+	SDL_ResumeAudioStreamDevice(stream);
 
 	// Initialising Shared Data
 	Chip8SD = std::move(chip8sd);
@@ -71,9 +87,10 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	
 	// Set y in range 0 - 32 and make sure it doesn't go off edge of screen
 	std::size_t y_start = Chip8SD->getVRegister(y) % TILEMAP_HEIGHT;
-	//std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
-	std::size_t y_end = y_start + N;
-	//Chip8SD->setVRegister(0xF, 1);
+	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
+	
+	// Set VF to 0
+	Chip8SD->setVRegister(0xF, 0);
 
 	// Both tilemap and updated portion are 2D arrays
 	// Two pointers for each array are used to track current index
@@ -81,14 +98,22 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	for (std::size_t i = y_start; i < y_end; i++) {
 		auto updateAreaCol = updateAreaRow->begin();
 		for (std::size_t j = x_start; j < x_end; j++) {
-			// Value of tilemap is set to either true or false
-			if (tileMap[i][j]){
-				//Chip8SD->setVRegister(0xF, 0);
+			// Check for collision 
+			if (tileMap[i][j] && *(updateAreaCol)){
+				Chip8SD->setVRegister(0xF, 1);
 			}
 			tileMap[i][j] ^= *(updateAreaCol);
 			updateAreaCol++;
 		}
 		updateAreaRow ++;
+	}
+}
+
+// Add audio to stream to be played 
+void TileMap::getAudio() {
+	// When audio queue is empty, put audio back into queue
+	if (SDL_GetAudioStreamQueued(stream) <= (int)audioDataLen) {
+		SDL_PutAudioStreamData(stream, audioData, audioDataLen);
 	}
 }
 
@@ -117,7 +142,7 @@ void TileMap::Draw() {
 // Nested loop to set every pixel in tilemap to false (off)
 void TileMap::resetMap() {
 	for (std::size_t i = 0; i < TILEMAP_HEIGHT; i++) {
-		for (std::size_t j = 0; j < TILEMAP_HEIGHT; j++) {
+		for (std::size_t j = 0; j < TILEMAP_WIDTH; j++) {
 			// tilemap pixel is reset on this line
 			tileMap[i][j] = false;
 		}
@@ -127,6 +152,8 @@ void TileMap::resetMap() {
 // Destroys all game window relevant attributes in order to prevent memory leaks
 void TileMap::Destroy() {
 	// These attributes need to be manually deleted when terminating program
+	SDL_free(audioData);
+	SDL_DestroyAudioStream(stream);
 	SDL_DestroyTexture(whiteTexture);
 	SDL_DestroyTexture(blackTexture);
 	SDL_DestroyRenderer(renderer);
@@ -136,18 +163,10 @@ void TileMap::Destroy() {
 	SDL_Quit();
 }
 
-// Keeps looping until enough time has passed
-void TileMap::remainingTime() {
-	while (SDL_GetTicks() - timeBefore < 1000 / frameRate) {
-		continue;
-	}
-	timeBefore = SDL_GetTicks(); // Update to current timestamp to repeat for next frame
-}
-
 // Return the current event happening
 void TileMap::getEvent() {
 	SDL_Event e;
-	std::vector <uint8_t> vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
+
 	//Get event data
 	while (SDL_PollEvent(&e) == true)
 	{
@@ -158,56 +177,111 @@ void TileMap::getEvent() {
 				break;
 			// All possible key presses (0-F)
 			case SDL_EVENT_KEY_DOWN:
+				// If key is held down, then add it mark it true in key press array
 				switch (e.key.scancode) {
 					case SDL_SCANCODE_1:
-						vx = { 0x20, 0x60, 0x20, 0x20, 0x70 };
+						Chip8SD->setKeyPress(0x1, true);
 						break;
 					case SDL_SCANCODE_2:
-						vx = { 0xF0, 0x10, 0xF0, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0x2, true);
 						break;
 					case SDL_SCANCODE_3:
-						vx = { 0xF0, 0x10, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x3, true);
 						break;
 					case SDL_SCANCODE_4:
-						vx = { 0xF0, 0x80, 0x80, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0xC, true);
 						break;
 					case SDL_SCANCODE_Q:
-						vx = { 0x90, 0x90, 0xF0, 0x10, 0x10 };
+						Chip8SD->setKeyPress(0x4, true);
 						break;
 					case SDL_SCANCODE_W:
-						vx = { 0xF0, 0x80, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x5, true);
 						break;
 					case SDL_SCANCODE_E:
-						vx = { 0xF0, 0x80, 0xF0, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x6, true);
 						break;
 					case SDL_SCANCODE_R:
-						vx = { 0xE0, 0x90, 0x90, 0x90, 0xE0 };
+						Chip8SD->setKeyPress(0xD, true);
 						break;
 					case SDL_SCANCODE_A:
-						vx = { 0xF0, 0x10, 0x20, 0x40, 0x40 };
+						Chip8SD->setKeyPress(0x7, true);
 						break;
 					case SDL_SCANCODE_S:
-						vx = { 0xF0, 0x90, 0xF0, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x8, true);
 						break;
 					case SDL_SCANCODE_D:
-						vx = { 0xF0, 0x90, 0xF0, 0x10, 0xF0 };
+						Chip8SD->setKeyPress(0x9, true);
 						break;
 					case SDL_SCANCODE_F:
-						vx = { 0xF0, 0x80, 0xF0, 0x80, 0xF0 };
+						Chip8SD->setKeyPress(0xE, true);
 						break;
 					case SDL_SCANCODE_Z:
-						vx = { 0xF0, 0x90, 0xF0, 0x90, 0x90 };
+						Chip8SD->setKeyPress(0xA, true);
 						break;
 					case SDL_SCANCODE_X:
-						vx = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
+						Chip8SD->setKeyPress(0x0, true);
 						break;
 					case SDL_SCANCODE_C:
-						vx = { 0xE0, 0x90, 0xE0, 0x90, 0xE0 };
+						Chip8SD->setKeyPress(0xB, true);
 						break;
 					case SDL_SCANCODE_V:
-						vx = { 0xF0, 0x80, 0xF0, 0x80, 0x80 };
+						Chip8SD->setKeyPress(0xF, true);
 						break;
-					}
+				}
+				break;
+			// If key is held released, then mark it false in key press array
+			case SDL_EVENT_KEY_UP:
+				switch (e.key.scancode) {
+					case SDL_SCANCODE_1:
+						Chip8SD->setKeyPress(0x1, false);
+						break;
+					case SDL_SCANCODE_2:
+						Chip8SD->setKeyPress(0x2, false);
+						break;
+					case SDL_SCANCODE_3:
+						Chip8SD->setKeyPress(0x3, false);
+						break;
+					case SDL_SCANCODE_4:
+						Chip8SD->setKeyPress(0xC, false);
+						break;
+					case SDL_SCANCODE_Q:
+						Chip8SD->setKeyPress(0x4, false);
+						break;
+					case SDL_SCANCODE_W:
+						Chip8SD->setKeyPress(0x5, false);
+						break;
+					case SDL_SCANCODE_E:
+						Chip8SD->setKeyPress(0x6, false);
+						break;
+					case SDL_SCANCODE_R:
+						Chip8SD->setKeyPress(0xD, false);
+						break;
+					case SDL_SCANCODE_A:
+						Chip8SD->setKeyPress(0x7, false);
+						break;
+					case SDL_SCANCODE_S:
+						Chip8SD->setKeyPress(0x8, false);
+						break;
+					case SDL_SCANCODE_D:
+						Chip8SD->setKeyPress(0x9, false);
+						break;
+					case SDL_SCANCODE_F:
+						Chip8SD->setKeyPress(0xE, false);
+						break;
+					case SDL_SCANCODE_Z:
+						Chip8SD->setKeyPress(0xA, false);
+						break;
+					case SDL_SCANCODE_X:
+						Chip8SD->setKeyPress(0x0, false);
+						break;
+					case SDL_SCANCODE_C:
+						Chip8SD->setKeyPress(0xB, false);
+						break;
+					case SDL_SCANCODE_V:
+						Chip8SD->setKeyPress(0xF, false);
+						break;
+				}
+				break;
 		}
 	}
 }

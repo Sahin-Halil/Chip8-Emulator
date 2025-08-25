@@ -1,5 +1,7 @@
 #include "CPU.h"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 // Initialise each CPU attribute
 CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::shared_ptr<CPUTileMapData> chip8sd) {
@@ -7,11 +9,22 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	PC = 512;
 	I = 0;
 	Stack = {};
+	delayTimer = 0;
+	soundTimer = 0;
+
+	// Control speed of emulation loop
+	emulationTimeBefore = 0; 
+	emulationFrameRate = 60;
+	instructionsPerSecond = 500;
+	instructionsFrameCounter = 0;
 
 	// Move objects into respective pointers
 	RAM = std::move(ram);
 	Chip8TM = std::move(chip8tm);
 	Chip8SD = std::move(chip8sd);
+
+	// Get a different random number each time the program runs
+	srand((unsigned int)time(0));
 }
 
 // Get next two bytes from memory, then increment PC, merge the two bytes and return it (this is the instruction)
@@ -68,18 +81,30 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 8XY1 (store in VX: VX or VY)
 	// 8XY2 (store in VX: VX and VY)
 	// 8XY3 (store in VX: VX XOR VY)
-	// 8XYE (modern version: shifted VX to left, and modified VF)
-	// 8XY6 (modern version: shifted VX to right, and modified VF)
-	// FX55 (modern version: takes contents of registers V0-VX, and stores it in memory starting from I)
-	// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
+	// 8XYE (legacy version: set VX to VY then shift VX to left, and modified VF)
+	// 8XY6 (legacy version: set VX to VY then shift VX to right, and modified VF)
+	// FX55 (legacy version: takes contents of registers V0-VX, and stores it in memory starting from I (adds VX + 1 to I))
+	// FX65 (legacy version: takes contents of memory starting from I, and stores it in register V0-VX (adds VX + 1 to I))
 	// FX33 (Break a number into digits and add it to memory starting from I)
 
 	// 9XY0 (Skip Instruction)
-	// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
+	// FX1E (VX is addedd to I)
 	// 00EE (Pop address of the Stack and set it to PC)
 	// 8XY0 (set VX to value of VY)
-	// 8XY4 (store in VX, VX + VY, and modified VF)
-	// 2NNN (push current PC value in Stack, then jump)
+	// 8XY4 (store in VX: VX + VY, and modified VF)
+	// 2NNN (push current PC value in Stack, then jump to NNN)
+
+	// EX9E (skip next instruction if lower 4 bits of VX is pressed)
+	// EXA1 (skip next instruction if lower 4 bits of VX is not pressed)
+
+	// FX07 (sets VX to the current value of the delay timer)
+	// FX15 (sets the delay timer to the value in VX)
+	// FX18 (sets the sound timer to the value in VX)
+
+	// 0NNN (jump to NNN)
+	// BNNN (jump to NNN + V0) 
+	// CXNN (set VX to bitwise AND between random number and NN)
+	// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -89,26 +114,21 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
 			//std::cout << "Here" << "\n";
-			Chip8TM->Draw();
 			break;
 		}
 		case 0x0:
-			switch (nibble2) {
-				case 0x0:
-					switch (nibble3) {
-						case 0xE:
-							switch (nibble4) {
-								// 00E0 (clear screen)
-								case 0x0:
-									Chip8TM->resetMap();
-									break;
-								// 00EE (pop Stack)
-								case 0xE:
-									PC = popFromStack();
-									break;
-							}
-							break;
-					}
+			switch (NNN) {
+				// 00E0 (clear screen)
+				case 0x0E0:
+					Chip8TM->resetMap();
+					break;
+				// 00EE (pop Stack)
+				case 0x0EE:
+					PC = popFromStack();
+					break;
+				// 0NNN (jump instruction)
+				default:
+					setPC(NNN);
 					break;
 			}
 			break;
@@ -135,6 +155,18 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		case 0xA:
 			setI(NNN);
 			break;
+		// BNNN (jump instruction)
+		case 0xB: {
+			uint8_t V0 = Chip8SD->getVRegister(0);
+			setPC(NNN + V0);
+			break;
+		}		
+		// CXNN (set VX: random num & NN)
+		case 0xC: {
+			uint8_t randomNum = rand() % 256;
+			Chip8SD->setVRegister(X, randomNum& NN);
+			break;
+		}
 		// 3XNN (skip Instruction)
 		case 0x3:
 			if (Chip8SD->getVRegister(X) == NN) {
@@ -155,6 +187,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						setPC(getPC() + 2);
 					}
 					break;
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
 				}
 			break;
 		case 0x9:
@@ -165,6 +200,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					if (Chip8SD->getVRegister(X) != Chip8SD->getVRegister(Y)) {
 						setPC(getPC() + 2);
 					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
 					break;
 			}
 			break;
@@ -183,7 +221,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t difference = VX - VY;
 					Chip8SD->setVRegister(X, difference);
-					// VF set to 1 if in range, else 0
+					// VF set to 0 if in range, else 1
 					if (VX < VY) {
 						// std::cout << "here" << "\n";
 						//difference = VY - VX;
@@ -235,8 +273,10 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, bitwiseXOR);
 					break;
 				}
-				// 8XYE (modern version: shifted VX to left, and modified VF)
+				// 8XYE (legacy version: set VX to VY then shift VX to left, and modified VF)
 				case 0xE: {
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					Chip8SD->setVRegister(X, VY);
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t MSB = 0x80 & VX;
 					VX <<= 1;
@@ -245,8 +285,10 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(0xF, MSB);
 					break;
 				}
-				// 8XY6 (modern version: shifted VX to right, and modified VF)
+				// 8XY6 (legacy version: set VY to VX then shift VX to right, and modified VF)
 				case 0x6: {
+					uint8_t VY = Chip8SD->getVRegister(Y);
+					Chip8SD->setVRegister(X, VY);
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t LSB = 0x01 & VX;
 					VX >>= 1;
@@ -259,7 +301,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t registerSum = VX + VY;
-					// VF is set to 1 if sum if in range, else 0
+					// VF is set to 0 if sum if in range, else 1
 					Chip8SD->setVRegister(X, registerSum);
 					if (VX < 255 - VY) {
 						Chip8SD->setVRegister(0xF, 0);
@@ -269,30 +311,40 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					}
 					break;
 				}
-
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
 			}
 			break;
 		case 0xF:
 			switch (nibble3) {
 				case 0x5:
 					switch (nibble4) {
-						// FX55 (modern version: takes contents of registers V0-VX, and stores it in memory starting from I)
+						// FX55 (legacy version: takes contents of registers V0-VX, and stores it in memory starting from I (adds VX + 1 to I))
 						case 0x5:
 							for (std::size_t i = 0; i <= X; i++) {
 								uint8_t V = Chip8SD->getVRegister(i);
 								RAM->updateMemory(getI() + i, V);
 							}
+							setI(getI() + X + 1); // Update I to new value
+							break;
+						default:
+							std::cout << "ERROR" << "\n";
 							break;
 					}
 					break;
 				case 0x6:
 					switch (nibble4) {
-						// FX65 (modern version: takes contents of memory starting from I, and stores it in register V0-VX)
+						// FX65 (legacy version: takes contents of memory starting from I, and stores it in register V0-VX (adds VX + 1 to I))
 						case 0x5:
 							for (std::size_t i = 0; i <= X; i++) {
 								uint8_t data = RAM->getMemory(getI() + i);
 								Chip8SD->setVRegister(i, data);
 							}
+							setI(getI() + X + 1);
+							break;
+						default:
+							std::cout << "ERROR" << "\n";
 							break;
 					}
 					break;
@@ -308,23 +360,109 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							}
 							break;
 						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
+					}
+					break;
+				case 0x0:
+					switch (nibble4) {
+						// FX07 (sets VX to the current value of the delay timer)
+						case 0x7:
+							Chip8SD->setVRegister(X, getDelayTimer());
+							break;
+						// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
+						case 0xA: {
+							bool flag = false; // set to true if key was released
+							
+							// Loop through all key ups to check for a release
+							for (std::size_t i = 0; i < 16; i++) {
+								if (Chip8SD->checkKeyUp(i) != 255) {
+									Chip8SD->setVRegister(X, (uint8_t) i); // set VX to released key
+									flag = true;
+									break;
+								}
+							}
+							// If no key was released then halt emulator execution
+							if (flag == false) {
+								setPC(getPC() - 2);
+							}
+							break;
+						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
 					break;
 				case 0x1:
 					switch (nibble4) {
-						// FX1E (modern version: VX is addedd to I, VF set to 1 if overflow)
+						// FX1E (VX is addedd to I)
 						case 0xE: {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							setI(getI() + VX);
-							if (I + VX > 0xFFF) {
-								Chip8SD->setVRegister(0xF, 1);
+							break;
+						}
+						// FX15 (sets the delay timer to the value in VX)
+						case 0x5: 
+							setDelayTimer(Chip8SD->getVRegister(X));
+							break;
+						// FX18 (sets the sound timer to the value in VX)
+						case 0x8:
+							setSoundTimer(Chip8SD->getVRegister(X));
+							break;
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
+					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
+			}
+			break;
+		case 0xE:
+			switch (nibble3) {
+				case 0x9:
+					switch (nibble4) {
+						// EX9E (skip if pressed) 
+						case 0xE: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							uint8_t lowestNibble = VX & 0xF;
+							//std::cout << +lowestNibble << "\n";
+							if (Chip8SD->getKeyPress(lowestNibble) == true) {
+								//std::cout << "here" << "\n";
+								setPC(getPC() + 2);
 							}
 							break;
 						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
 					}
 					break;
-				}
-				break;
+				case 0xA:
+					switch (nibble4) {
+						// EXA1 (skip if not pressed)
+						case 0x1: {
+							uint8_t VX = Chip8SD->getVRegister(X);
+							uint8_t lowestNibble = VX & 0xF;
+							//std::cout << +lowestNibble << "\n";
+							if (Chip8SD->getKeyPress(lowestNibble) == false) {
+								//std::cout << "here" << "\n";
+								setPC(getPC() + 2);
+							}
+							break;
+						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
+					}
+					break;
+				default:
+					std::cout << "ERROR" << "\n";
+					break;
+			}
+			break;
 		// Unknown instruction (useful for debugging)
 		default:
 			std::cout << "ERROR" << "\n";
@@ -336,9 +474,8 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
+		emulationRemainingTime(); // Run emulator at set speed
 		Chip8TM->getEvent(); // Check if user triggered an event
-		Chip8TM->remainingTime(); // Run emulator at set speed
-		//Chip8TM->Draw();
 
 		// Fetch - Decode - Execute
 		uint16_t instruction = Fetch();
@@ -374,6 +511,38 @@ std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
 	}
 
 	return spriteDataBool;
+}
+
+// Update timers and display
+void CPU::updateEmulationComponents() {
+	// Decrease delay and sound timer if they are greater than 0
+	if (getDelayTimer() > 0) {
+		setDelayTimer(getDelayTimer() - 1);
+	}
+	if (getSoundTimer() > 0) {
+		Chip8TM->getAudio(); // Play audio
+		setSoundTimer(getSoundTimer() - 1);
+	}
+	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
+	Chip8TM->Draw(); // Update current contents of the display
+}
+
+// Controls how many instructions are run per frame
+void CPU::emulationRemainingTime() {
+	// Check how many instructions have been currently executed
+	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
+		// Make program wait until time for current frame is up
+		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
+			continue;
+		}
+		// Update to current timestamps to repeat for next frame
+		emulationTimeBefore = SDL_GetTicks(); 
+		instructionsFrameCounter = 0;
+		updateEmulationComponents(); // Update system components
+	}
+	else {
+		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
+	}
 }
 
 // Return current PC Value
@@ -430,3 +599,36 @@ void CPU::pushToStack(uint16_t address) {
 		std::cout << "Error: Too many addresses in the Stack" << "\n";
 	}
 }
+
+// Return current time in delay register
+uint8_t CPU::getDelayTimer() {
+	return delayTimer;
+}
+
+// Check new delay time isn't negative then add new delay time to delay register 
+void CPU::setDelayTimer(uint8_t newDelayTime) {
+	if (newDelayTime >= 0) {
+		delayTimer = newDelayTime;
+	}
+	else {
+		std::cout << "Error: A negative delay time is possible" << "\n";
+	}
+}
+
+// Return current time in sound register
+uint8_t CPU::getSoundTimer() {
+	return soundTimer;
+}
+
+// Check new sound time isn't negative then add new sound time to sound register
+void CPU::setSoundTimer(uint8_t newSoundTimer) {
+	if (newSoundTimer >= 0) {
+		soundTimer = newSoundTimer;
+	}
+	else {
+		std::cout << "Error: A negative sound time is possible" << "\n";
+	}
+}
+
+
+
