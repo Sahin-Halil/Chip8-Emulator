@@ -27,8 +27,5 @@ struct CPUTileMapData {
 		// Getter and setter for key presses
 		bool getKeyPress(std::size_t keyPressIndex);
 		void setKeyPress(std::size_t keyPressIndex, bool KeyPress);
-
-		// Reset all key presses
-		void resetKeys();
 };
 

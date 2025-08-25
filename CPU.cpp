@@ -114,7 +114,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							switch (nibble4) {
 								// 00E0 (clear screen)
 								case 0x0:
-									std::cout << "here to clear screen" << "\n";
 									Chip8TM->resetMap();
 									break;
 								// 00EE (pop Stack)
@@ -399,7 +398,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 void CPU::Run() {
 	// Loop until user clicks exit button
 	while (Chip8SD->getExitStatus() == false) {
-		//Chip8SD->resetKeys(); // Every loop reset keys
 		emulationRemainingTime(); // Run emulator at set speed
 		Chip8TM->getEvent(); // Check if user triggered an event
 
