@@ -63,7 +63,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
+	std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
 	// DXYN (display/draw)
@@ -370,6 +370,21 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x7:
 							Chip8SD->setVRegister(X, getDelayTimer());
 							break;
+						case 0xA: {
+							bool flag = false;
+							for (std::size_t i = 0; i < 16; i++) {
+								if (Chip8SD->checkKeyUp(i) != 255) {
+									std::cout << "here" << "\n";
+									Chip8SD->setVRegister(X, i);
+									flag = true;
+									break;
+								}
+							}
+							if (flag == false) {
+								setPC(getPC() - 2);
+							}
+							break;
+						}
 						default:
 							std::cout << "ERROR" << "\n";
 							break;
@@ -504,7 +519,7 @@ void CPU::updateEmulationComponents() {
 		Chip8TM->getAudio(); // Play audio
 		setSoundTimer(getSoundTimer() - 1);
 	}
-	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
+	//Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
 	Chip8TM->Draw(); // Update current contents of the display
 }
 

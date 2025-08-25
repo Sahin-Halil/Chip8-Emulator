@@ -67,7 +67,6 @@ void CPUTileMapData::setKeyPress(std::size_t keyPressIndex, bool keyPress) {
 	}
 }
 
-
 // Reset all keys that have been released after sometime 
 void CPUTileMapData::resetKeyUps() {
 	for (std::size_t i = 0; i < 16; i++) {
@@ -76,12 +75,14 @@ void CPUTileMapData::resetKeyUps() {
 }
 
 // Loop and check if key has been released
-bool CPUTileMapData::checkKeyUp() {
-	for (std::size_t i = 0; i < 16; i++) {
-		if (keysUp[i] == false) {
-			return true;
+uint8_t CPUTileMapData::checkKeyUp(std::size_t keyPressIndex) {
+	if (0 <= keyPressIndex && keyPressIndex < 16) {
+		if (keysUp[keyPressIndex] == false) {
+			return keyPressIndex;
 		}
 	}
-	return false;
-
+	else {
+		std::cout << "Error: Invalid key access in key up method" << "\n";
+	}
+	return 255;
 }

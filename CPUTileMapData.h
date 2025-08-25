@@ -30,6 +30,6 @@ struct CPUTileMapData {
 		void setKeyPress(std::size_t keyPressIndex, bool KeyPress);
 
 		void resetKeyUps(); // Reset all key ups
-		bool checkKeyUp(); // Check if key has been released
+		uint8_t checkKeyUp(std::size_t keyPressIndex); // Check if key has been released
 };
 
