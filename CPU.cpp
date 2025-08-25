@@ -61,6 +61,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
 
 	// instructions done so far
+	// 0NNN (Push current value in PC to stack, then jump to NNN)
 	// DXYN (display/draw)
 	// 00E0 (clear screen)
 	// 1NNN (jump)
@@ -87,7 +88,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 00EE (Pop address of the Stack and set it to PC)
 	// 8XY0 (set VX to value of VY)
 	// 8XY4 (store in VX, VX + VY, and modified VF)
-	// 2NNN (push current PC value in Stack, then jump)
+	// 2NNN (push current PC value in Stack, then jump to NNN)
 
 	// EX9E
 	// EXA1
@@ -107,31 +108,19 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			break;
 		}
 		case 0x0:
-			switch (nibble2) {
-				case 0x0:
-					switch (nibble3) {
-						case 0xE:
-							switch (nibble4) {
-								// 00E0 (clear screen)
-								case 0x0:
-									Chip8TM->resetMap();
-									break;
-								// 00EE (pop Stack)
-								case 0xE:
-									PC = popFromStack();
-									break;
-								default:
-									std::cout << "ERROR" << "\n";
-									break;
-							}
-							break;
-						default:
-							std::cout << "ERROR" << "\n";
-							break;
-					}
+			switch (NNN) {
+				// 00E0 (clear screen)
+				case 0x0E0:
+					Chip8TM->resetMap();
 					break;
+					// 00EE (pop Stack)
+				case 0x0EE:
+					PC = popFromStack();
+					break;
+					// 0NNN (push then jump)
 				default:
-					std::cout << "ERROR" << "\n";
+					pushToStack(getPC());
+					setPC(NNN);
 					break;
 			}
 			break;
