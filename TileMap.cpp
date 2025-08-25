@@ -84,13 +84,13 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	// Set x in range 0 - 63 and make sure it doesn't go off edge of screen
 	std::size_t x_start = Chip8SD->getVRegister(x) % TILEMAP_WIDTH;
 	std::size_t x_end = (x_start + 8 < TILEMAP_WIDTH) ? x_start + 8 : TILEMAP_WIDTH;
-	//std::size_t x_end = x_start + 8;
 	
 	// Set y in range 0 - 32 and make sure it doesn't go off edge of screen
 	std::size_t y_start = Chip8SD->getVRegister(y) % TILEMAP_HEIGHT;
 	std::size_t y_end = (y_start + N < TILEMAP_HEIGHT) ? y_start + N : TILEMAP_HEIGHT;
-	//std::size_t y_end = y_start + N;
-	//Chip8SD->setVRegister(0xF, 1);
+	
+	// Set VF to 0
+	Chip8SD->setVRegister(0xF, 0);
 
 	// Both tilemap and updated portion are 2D arrays
 	// Two pointers for each array are used to track current index
@@ -98,9 +98,9 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 	for (std::size_t i = y_start; i < y_end; i++) {
 		auto updateAreaCol = updateAreaRow->begin();
 		for (std::size_t j = x_start; j < x_end; j++) {
-			// Value of tilemap is set to either true or false
-			if (tileMap[i][j]){
-				//Chip8SD->setVRegister(0xF, 0);
+			// Check for collision 
+			if (tileMap[i][j] && *(updateAreaCol)){
+				Chip8SD->setVRegister(0xF, 1);
 			}
 			tileMap[i][j] ^= *(updateAreaCol);
 			updateAreaCol++;
