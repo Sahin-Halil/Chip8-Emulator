@@ -112,7 +112,7 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 // Add audio to stream to be played 
 void TileMap::getAudio() {
 	// When audio queue is empty, put audio back into queue
-	if (SDL_GetAudioStreamQueued(stream) <= 0) {
+	if (SDL_GetAudioStreamQueued(stream) <= (int)audioDataLen) {
 		SDL_PutAudioStreamData(stream, audioData, audioDataLen);
 	}
 }
