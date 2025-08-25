@@ -78,9 +78,9 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// 5XY0 (skip Instruction)
 	// 8XY5 (store in VX, VX - VY, and modified VF)
 	// 8XY7 (store in VX: VY - VX, and modified VF)
-	// 8XY1 (store in VX: VX or VY, set VF to 0)
-	// 8XY2 (store in VX: VX and VY, set VF to 0)
-	// 8XY3 (store in VX: VX XOR VY, set VF to 0)
+	// 8XY1 (store in VX: VX or VY)
+	// 8XY2 (store in VX: VX and VY)
+	// 8XY3 (store in VX: VX XOR VY)
 	// 8XYE (legacy version: set VX to VY then shift VX to left, and modified VF)
 	// 8XY6 (legacy version: set VX to VY then shift VX to right, and modified VF)
 	// FX55 (legacy version: takes contents of registers V0-VX, and stores it in memory starting from I (adds VX + 1 to I))
@@ -248,31 +248,28 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					}
 					break;
 				}
-				// 8XY1 (store in VX: VX or VY, set VF to 0)
+				// 8XY1 (store in VX: VX or VY)
 				case 0x1: {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t bitwiseOR = VX | VY;
 					Chip8SD->setVRegister(X, bitwiseOR);
-					Chip8SD->setVRegister(0xF, 0);
 					break;
 				}
-				// 8XY2 (store in VX: VX and VY, set VF to 0)
+				// 8XY2 (store in VX: VX and VY)
 				case 0x2: {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t bitwiseAND = VX & VY;
 					Chip8SD->setVRegister(X, bitwiseAND);
-					Chip8SD->setVRegister(0xF, 0);
 					break;
 				}
-				// 8XY3 (store in VX: VX XOR VY, set VF to 0)
+				// 8XY3 (store in VX: VX XOR VY)
 				case 0x3: {
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t bitwiseXOR = VX ^ VY;
 					Chip8SD->setVRegister(X, bitwiseXOR);
-					Chip8SD->setVRegister(0xF, 0);
 					break;
 				}
 				// 8XYE (legacy version: set VX to VY then shift VX to left, and modified VF)
@@ -514,12 +511,12 @@ void CPU::updateEmulationComponents() {
 void CPU::emulationRemainingTime() {
 	// Check how many instructions have been currently executed
 	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
-		// Update system components
-		updateEmulationComponents();
 		// Make program wait until time for current frame is up
 		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
 			continue;
 		}
+		// Update system components
+		updateEmulationComponents();
 		// Update to current timestamps to repeat for next frame
 		emulationTimeBefore = SDL_GetTicks(); 
 		instructionsFrameCounter = 0;
