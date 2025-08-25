@@ -9,22 +9,8 @@
 #include "TileMap.h"
 #include "CPUTileMapData.h"
 
-
 int main(int argc, char *argv[])
 {
-    
-    /* This is what i normally work by when designing the interface of a non - template function:
-
-     Pass by value if the function does not want to modify the parameter and the value is cheap to copy(int, double, float, char, bool, etc... Notice that std::string, std::vector, and the rest of the containers in the standard library are NOT)
-
-     Pass by const pointer if the value is expensive to copy and the function does not want to modify the value pointed to and NULL is a value that the function handles.
-
-     Pass by non - const pointer if the value is expensive to copy and the function wants to modify the value pointed to and NULL is a value that the function handles.
-
-     Pass by const reference when the value is expensive to copy and the function does not want to modify the value referred to and NULL would not be a valid value if a pointer was used instead.
-
-     Pass by non - const reference when the value is expensive to copy and the function wants to modify the value referred to and NULL would not be a valid value if a pointer was used instead.*/
-
       // Load ROM contents into array
       std::vector<uint8_t> gameData = loadROM();
 

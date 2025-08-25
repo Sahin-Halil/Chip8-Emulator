@@ -105,6 +105,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// BNNN (jump to NNN + V0) 
 	// CXNN (set VX to bitwise AND between random number and NN)
 	// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
+	// FX29 (set I to start of font data stored for hex value in VX)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -318,6 +319,22 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			break;
 		case 0xF:
 			switch (nibble3) {
+				case 0x2:
+					switch (nibble4) {
+						// FX29 (set I to start of font data stored for hex value in VX)
+						case 0x9: {
+							// I = 0x050 + HexValue * 5 
+							uint8_t VX = Chip8SD->getVRegister(X);
+							uint8_t fontVXChar = VX & 0xF;
+							uint16_t fontVXCharIndex = 0x050 + (fontVXChar * 5);
+							setI(fontVXCharIndex);
+							break;
+						}
+						default:
+							std::cout << "ERROR" << "\n";
+							break;
+					}
+					break;
 				case 0x5:
 					switch (nibble4) {
 						// FX55 (legacy version: takes contents of registers V0-VX, and stores it in memory starting from I (adds VX + 1 to I))
