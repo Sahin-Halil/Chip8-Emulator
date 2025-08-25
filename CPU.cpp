@@ -517,6 +517,7 @@ std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
 void CPU::updateEmulationComponents() {
 	// Decrease delay and sound timer if they are greater than 0
 	if (getDelayTimer() > 0) {
+		std::cout << +getDelayTimer() << "\n";
 		setDelayTimer(getDelayTimer() - 1);
 	}
 	if (getSoundTimer() > 0) {
