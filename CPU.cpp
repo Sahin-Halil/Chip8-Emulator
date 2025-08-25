@@ -113,11 +113,11 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				case 0x0E0:
 					Chip8TM->resetMap();
 					break;
-					// 00EE (pop Stack)
+				// 00EE (pop Stack)
 				case 0x0EE:
 					PC = popFromStack();
 					break;
-					// 0NNN (push then jump)
+				// 0NNN (push then jump)
 				default:
 					pushToStack(getPC());
 					setPC(NNN);
