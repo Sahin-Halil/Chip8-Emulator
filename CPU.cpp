@@ -114,7 +114,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			// Get sprite data and output on game window 
 			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
-			//std::cout << "Here" << "\n";
 			break;
 		}
 		case 0x0:
@@ -194,7 +193,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				}
 			break;
 		case 0x9:
-			//std::cout << "Here" <<"\n";
 			switch (nibble4) {
 				// 9XY0 (Skip Instruction)
 				case 0x0:
@@ -217,15 +215,12 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				}
 				// 8XY5 (store in VX: VX - VY, and modified VF)
 				case 0x5: {
-					//std::cout << "Here" << "\n";
 					uint8_t VX = Chip8SD->getVRegister(X);
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					uint8_t difference = VX - VY;
 					Chip8SD->setVRegister(X, difference);
 					// VF set to 0 if in range, else 1
 					if (VX < VY) {
-						// std::cout << "here" << "\n";
-						//difference = VY - VX;
 						Chip8SD->setVRegister(0xF, 0);
 					}
 					else {
@@ -241,8 +236,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(X, difference);
 					// VF set to 1 if in range, else 0
 					if (VY < VX) {
-						// std::cout << "here" << "\n";
-						// difference = VX - VY;
 						Chip8SD->setVRegister(0xF, 0);
 					}
 					else {
@@ -445,9 +438,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0xE: {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							uint8_t lowestNibble = VX & 0xF;
-							//std::cout << +lowestNibble << "\n";
 							if (Chip8SD->getKeyPress(lowestNibble) == true) {
-								//std::cout << "here" << "\n";
 								setPC(getPC() + 2);
 							}
 							break;
@@ -463,9 +454,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 						case 0x1: {
 							uint8_t VX = Chip8SD->getVRegister(X);
 							uint8_t lowestNibble = VX & 0xF;
-							//std::cout << +lowestNibble << "\n";
 							if (Chip8SD->getKeyPress(lowestNibble) == false) {
-								//std::cout << "here" << "\n";
 								setPC(getPC() + 2);
 							}
 							break;
@@ -522,9 +511,7 @@ std::vector<std::vector<bool>> CPU::getDrawingData(uint8_t N) {
 		for (std::size_t j = 0; j < 8; j++) {
 			spriteDataBool[i][j] = mask & val; // Mask a specific bit of a binary value
 			mask >>= 1;
-			//std::cout << spriteDataBool[i][j];
 		}
-		// std::cout << "\n";
 	}
 
 	return spriteDataBool;

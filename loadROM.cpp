@@ -9,16 +9,14 @@ std::vector<uint8_t> loadROM() {
     
 	// Open ROM as read only binary file
     std::ifstream chip8Game;
-    chip8Game.open("Game-Files/bc_test.ch8", std::ios::out | std::ios::binary);
+    chip8Game.open("Game-Files/CONNECT4", std::ios::out | std::ios::binary);
 
 	// Add contents to array if ROM exists
     if (chip8Game.is_open()) {
-        // std::cout << "Success: chip8 file was opened" << "\n";
         uint8_t data = chip8Game.get(); // Get current binary value
         
 		// Loop through the ROM and add each binary value to array
 		while (chip8Game.good()) {
-            //std::cout << +data << "\n";
             gameData.push_back(data);
             data = chip8Game.get(); // Get next binary value (if any)
         }

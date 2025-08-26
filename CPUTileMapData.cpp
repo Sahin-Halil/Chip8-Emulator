@@ -74,7 +74,7 @@ void CPUTileMapData::resetKeyUps() {
 	}
 }
 
-// Loop and check if key has been released
+// check if key has been released
 uint8_t CPUTileMapData::checkKeyUp(std::size_t keyUpIndex) {
 	if (0 <= keyUpIndex && keyUpIndex < 16) {
 		if (keysUp[keyUpIndex] == true) {

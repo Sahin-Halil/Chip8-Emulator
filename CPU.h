@@ -34,6 +34,7 @@ class CPU {
 		std::vector<std::vector<bool>> getDrawingData(uint8_t N); // Get small 2D map of sprite data
 		void updateEmulationComponents(); // Update various components of emulator that needs to be updated every 60fps
 		void emulationRemainingTime(); // Wait until time is up before starting next loop cycle (frame)
+		
 		// Getter and Setter for PC
 		uint16_t getPC();
 		void setPC(uint16_t newPC);

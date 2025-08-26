@@ -10,8 +10,8 @@
 #define WINDOW_HEIGHT 32 * 20
 #define TILEMAP_WIDTH 64 
 #define TILEMAP_HEIGHT 32 
-#define TEXTURE_SIZE 20
-#define RECT_SIZE 20
+#define TEXTURE_SIZE 10 
+#define RECT_SIZE 1 * 20
 
 class TileMap
 {

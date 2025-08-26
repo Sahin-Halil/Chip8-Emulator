@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
       // Create object of TileMap (with one pointer) and pass struct object into it
       std::unique_ptr<TileMap> Chip8TM = std::make_unique<TileMap>(std::move(Chip8SD2));
-      //RAM->updateMemory(0x1FF, 1);
+ 
       // Create object of CPU and pass in neccessary objects to run it
       CPU Chip8CPU(std::move(RAM), std::move(Chip8TM), std::move(Chip8SD1));
       Chip8CPU.Run(); // Start cpu so emulator can begin running

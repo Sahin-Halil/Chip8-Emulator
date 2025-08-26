@@ -111,7 +111,7 @@ void TileMap::updateMap(std::size_t x, std::size_t y, std::size_t N, const std::
 
 // Add audio to stream to be played 
 void TileMap::getAudio() {
-	// When audio queue is empty, put audio back into queue
+	// When current audio is being used, put same audio back into queue
 	if (SDL_GetAudioStreamQueued(stream) <= (int)audioDataLen) {
 		SDL_PutAudioStreamData(stream, audioData, audioDataLen);
 	}
@@ -131,9 +131,7 @@ void TileMap::Draw() {
 			else {
 				SDL_RenderTexture(renderer, blackTexture, NULL, &textureRect);
 			}
-			//std::cout << tileMap[i][j];
 		}
-		//std::cout << "\n";
 	}
 	// Outputs updated tilemap to game window
 	SDL_RenderPresent(renderer);
@@ -163,7 +161,7 @@ void TileMap::Destroy() {
 	SDL_Quit();
 }
 
-// Return the current event happening
+// scan for current events happening
 void TileMap::getEvent() {
 	SDL_Event e;
 
@@ -229,7 +227,7 @@ void TileMap::getEvent() {
 						break;
 				}
 				break;
-			// If key is held released, then mark it false in key press array
+			// If key is released, then mark it false in key press array
 			case SDL_EVENT_KEY_UP:
 				switch (e.key.scancode) {
 					case SDL_SCANCODE_1:
