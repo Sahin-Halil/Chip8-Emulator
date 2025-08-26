@@ -387,11 +387,17 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 							
 							// Loop through all key ups to check for a release
 							for (std::size_t i = 0; i < 16; i++) {
-								if (Chip8SD->checkKeyUp(i) != 255) {
+								if (Chip8SD->checkKeyUp(i)) {
 									Chip8SD->setVRegister(X, (uint8_t) i); // set VX to released key
 									flag = true;
 									break;
 								}
+								
+								/*if (Chip8SD->getKeyPress(i)) {
+									Chip8SD->setVRegister(X, (uint8_t)i);
+									flag = true;
+									break;
+								}*/
 							}
 							// If no key was released then halt emulator execution
 							if (flag == false) {

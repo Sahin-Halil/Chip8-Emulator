@@ -77,12 +77,10 @@ void CPUTileMapData::resetKeyUps() {
 // check if key has been released
 uint8_t CPUTileMapData::checkKeyUp(std::size_t keyUpIndex) {
 	if (0 <= keyUpIndex && keyUpIndex < 16) {
-		if (keysUp[keyUpIndex] == true) {
-			return (uint8_t) keyUpIndex;
-		}
+			return keysUp[keyUpIndex];
 	}
 	else {
 		std::cout << "Error: Invalid key access in key up method" << "\n";
+		return 0;
 	}
-	return 255; // no key was released (or invalid key up index)
 }
