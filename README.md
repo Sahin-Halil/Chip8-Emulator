@@ -73,7 +73,6 @@ These ROMs are widely available online and are provided here **for educational p
 - Flickering handling → address screen flicker behavior for stricter authenticity  
 - Input behavior → original hardware beep on key hold removed (can be reintroduced as option)  
 - Display sync → currently does not wait for vertical blanking; could be added for stricter timing  
-- Debugger tools → step-through execution, register/memory viewer, opcode logging  
 - Raspberry Pi port → run the emulator on a Raspberry Pi for a more authentic retro experience  
 
 ---
