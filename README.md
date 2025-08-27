@@ -1,8 +1,8 @@
 # CHIP-8 Emulator (COSMAC VIP Legacy)
 
 <p align="center">
-  <img src="Demos/PacMan.gif" width="300" />
-  <img src="Demos/SpaceInvaders.gif" width="300" />
+  <img src="Demos/PacMan.gif" width="300" style="margin-right: 10px;" />
+  <img src="Demos/SpaceInvaders.gif" width="300" style="margin-right: 10px;" />
   <img src="Demos/WallBreaker.gif" width="300" />
 </p>
 
@@ -38,17 +38,12 @@ This project deepened my understanding of low-level systems, instruction sets, a
 
 ## Controls  
 
-CHIP-8: 
-1 2 3 C  
-4 5 6 D  
-7 8 9 E  
-A 0 B F  
-
-Keyboard: 
-1 2 3 4  
-Q W E R  
-A S D F  
-Z X C V  
+| CHIP-8 | Keyboard |
+|--------|----------|
+| 1 2 3 C | 1 2 3 4 |
+| 4 5 6 D | Q W E R |
+| 7 8 9 E | A S D F |
+| A 0 B F | Z X C V |
 
 ---
 
