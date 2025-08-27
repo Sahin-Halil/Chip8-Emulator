@@ -1,9 +1,9 @@
 # CHIP-8 Emulator (COSMAC VIP Legacy)
 
 <p align="center">
-  <img src="Demos/PacMan.gif" width="300" style="margin-right: 10px;" />
-  <img src="Demos/SpaceInvaders.gif" width="300" style="margin-right: 10px;" />
-  <img src="Demos/WallBreaker.gif" width="300" />
+  <img src="Demos/PacMan.gif" width="334" style="margin-right: 10px;" />
+  <img src="Demos/SpaceInvaders.gif" width="334" style="margin-right: 10px;" />
+  <img src="Demos/WallBreaker.gif" width="334" />
 </p>
 
 ---
