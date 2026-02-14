@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/chip8.dir/src/main.cpp.o CMakeFiles/chip8.dir/src/CPU.cpp.o CMakeFiles/chip8.dir/src/Memory.cpp.o CMakeFiles/chip8.dir/src/loadROM.cpp.o CMakeFiles/chip8.dir/src/TileMap.cpp.o CMakeFiles/chip8.dir/src/CPUTileMapData.cpp.o -o chip8  -Wl,-rpath,/usr/local/lib /usr/local/lib/libSDL3.so.0.5.0 

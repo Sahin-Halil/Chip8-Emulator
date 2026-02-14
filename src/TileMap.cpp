@@ -4,9 +4,18 @@
 // Setups tilemap and game window
 TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Checks if the SDL library is initialised and working
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-		SDL_Log("Couldn't initialise SDL: %s\n", SDL_GetError());
-		return;
+	// if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+	// 	SDL_Log("Couldn't initialise SDL: %s\n", SDL_GetError());
+	// 	return;
+	// }
+
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+		SDL_Log("SDL audio failed, continuing without sound: %s", SDL_GetError());
+
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			SDL_Log("SDL video failed: %s", SDL_GetError());
+			return;
+    	}
 	}
 
 	// Creating and checking window was created
@@ -53,27 +62,27 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	// Initialising all values in tilemap to false, false = black and true = white
 	resetMap();
 
-	// Initialise audio data
-	audioData = NULL;
-	audioDataLen = 0;
+	// // Initialise audio data
+	// audioData = NULL;
+	// audioDataLen = 0;
 
-	// Check if audio can be loaded from .wav file
-	if (!SDL_LoadWAV("Audio-Files/beep-02.wav", &audioSpec, &audioData, &audioDataLen)) {
-		SDL_Log("Couldn't load audio from .wave file: %s", SDL_GetError());
-		return;
-	}
+	// // Check if audio can be loaded from .wav file
+	// if (!SDL_LoadWAV("assets/Audio-Files/beep-02.wav", &audioSpec, &audioData, &audioDataLen)) {
+	// 	SDL_Log("Couldn't load audio from .wave file: %s", SDL_GetError());
+	// 	return;
+	// }
 
-	// Open audio device stream
-	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec, NULL, NULL);
+	// // Open audio device stream
+	// stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec, NULL, NULL);
 
-	// Check to see if stream was created
-	if (!stream) {
-		SDL_Log("Couldn't create audio stream: %s\n", SDL_GetError());
-		return;
-	}
+	// // Check to see if stream was created
+	// if (!stream) {
+	// 	SDL_Log("Couldn't create audio stream: %s\n", SDL_GetError());
+	// 	return;
+	// }
 
-	// Unpause audio (usually off to begin with)
-	SDL_ResumeAudioStreamDevice(stream);
+	// // Unpause audio (usually off to begin with)
+	// SDL_ResumeAudioStreamDevice(stream);
 
 	// Initialising Shared Data
 	Chip8SD = std::move(chip8sd);
@@ -151,7 +160,7 @@ void TileMap::resetMap() {
 void TileMap::Destroy() {
 	// These attributes need to be manually deleted when terminating program
 	SDL_free(audioData);
-	SDL_DestroyAudioStream(stream);
+	//SDL_DestroyAudioStream(stream);
 	SDL_DestroyTexture(whiteTexture);
 	SDL_DestroyTexture(blackTexture);
 	SDL_DestroyRenderer(renderer);

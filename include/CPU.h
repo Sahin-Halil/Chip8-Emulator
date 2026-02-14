@@ -1,9 +1,10 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include "Memory.h"
-#include "TIleMap.h"
+#include "TileMap.h"
 #include <vector>
 #include <memory>
+#include <cstdint>
 
 class CPU {
 	private:

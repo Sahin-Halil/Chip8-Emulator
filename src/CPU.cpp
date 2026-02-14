@@ -530,7 +530,7 @@ void CPU::updateEmulationComponents() {
 		setDelayTimer(getDelayTimer() - 1);
 	}
 	if (getSoundTimer() > 0) {
-		Chip8TM->getAudio(); // Play audio
+		//Chip8TM->getAudio(); // Play audio
 		setSoundTimer(getSoundTimer() - 1);
 	}
 	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
