@@ -59,12 +59,16 @@ Currently there is no automated build system. To run this project:
 
 ## ROMs  
 
-The repository includes a selection of CHIP-8 ROMs for convenience:  
+The repository includes a selection of CHIP-8 ROMs for convenience:
 
-- **`Game-Files/`** → classic CHIP-8 game ROMs (e.g. Pac-Man, Space Invaders, Wall Breaker, etc.)  
-- **`Test-Files/`** → test ROMs for debugging and validation (opcode tests, display tests, timers, etc.)  
+- **`Game-Files/`** → Classic CHIP-8 game ROMs  
+  Sourced from the public domain ROM collection originally hosted on **Zophar’s Domain**, preserved via **Internet Archive**.
 
-These ROMs are widely available online and are provided here **for educational purposes**.  
+- **`Test-Files/`** → Diagnostic and validation ROMs  
+  From the **Timendus CHIP-8 Test Suite**, used for emulator correctness testing.
+
+All ROMs are used strictly for **educational and demonstration purposes**.
+
 
 ---
 

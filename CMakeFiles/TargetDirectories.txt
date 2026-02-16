@@ -1,0 +1,3 @@
+/home/sahin/Chip8-Emulator/CMakeFiles/chip8.dir
+/home/sahin/Chip8-Emulator/CMakeFiles/edit_cache.dir
+/home/sahin/Chip8-Emulator/CMakeFiles/rebuild_cache.dir
