@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/chip8.dir/link.d"
   "CMakeFiles/chip8.dir/src/CPU.cpp.o"
   "CMakeFiles/chip8.dir/src/CPU.cpp.o.d"
   "CMakeFiles/chip8.dir/src/CPUTileMapData.cpp.o"
