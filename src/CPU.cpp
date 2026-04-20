@@ -102,10 +102,10 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	// FX18 (sets the sound timer to the value in VX)
 
 	// 0NNN (jump to NNN)
-	// BNNN (jump to NNN + V0) 
+	// BNNN (legacy version: jump to NNN + V0) 
 	// CXNN (set VX to bitwise AND between random number and NN)
 	// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
-	// FX29 (set I to start of font data stored for hex value in VX)
+	// FX29 (legacy version: set I to font address for hex digit in lower nibble of VX)
 
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
@@ -155,7 +155,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 		case 0xA:
 			setI(NNN);
 			break;
-		// BNNN (jump instruction)
+		// BNNN (legacy version: jump to NNN + V0) 
 		case 0xB: {
 			uint8_t V0 = Chip8SD->getVRegister(0);
 			setPC(NNN + V0);
@@ -314,7 +314,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			switch (nibble3) {
 				case 0x2:
 					switch (nibble4) {
-						// FX29 (set I to start of font data stored for hex value in VX)
+						// FX29 (legacy version: set I to font address for hex digit in lower nibble of VX)
 						case 0x9: {
 							// I = 0x050 + HexValue * 5 
 							uint8_t VX = Chip8SD->getVRegister(X);
