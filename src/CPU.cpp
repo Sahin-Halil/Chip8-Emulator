@@ -279,7 +279,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 					Chip8SD->setVRegister(0xF, MSB);
 					break;
 				}
-				// 8XY6 (legacy version: set VY to VX then shift VX to right, and modified VF)
+				// 8XY6 (legacy version: set VX to VY then shift VX to right, and modified VF)
 				case 0x6: {
 					uint8_t VY = Chip8SD->getVRegister(Y);
 					Chip8SD->setVRegister(X, VY);
@@ -392,12 +392,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 									flag = true;
 									break;
 								}
-								
-								/*if (Chip8SD->getKeyPress(i)) {
-									Chip8SD->setVRegister(X, (uint8_t)i);
-									flag = true;
-									break;
-								}*/
 							}
 							// If no key was released then halt emulator execution
 							if (flag == false) {
