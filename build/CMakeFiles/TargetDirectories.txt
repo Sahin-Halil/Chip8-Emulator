@@ -1,3 +1,0 @@
-/home/motu/Documents/Chip8-Emulator/build/CMakeFiles/chip8.dir
-/home/motu/Documents/Chip8-Emulator/build/CMakeFiles/edit_cache.dir
-/home/motu/Documents/Chip8-Emulator/build/CMakeFiles/rebuild_cache.dir
