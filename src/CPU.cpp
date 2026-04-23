@@ -18,6 +18,9 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	instructionsPerSecond = 500;
 	instructionsFrameCounter = 0;
 
+	// Draw flag optimisation
+	drawFlag = false;
+
 	// Move objects into respective pointers
 	RAM = std::move(ram);
 	Chip8TM = std::move(chip8tm);
@@ -114,6 +117,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 			// Get sprite data and output on game window 
 			std::vector<std::vector<bool>> spriteDataBool = getDrawingData(N);
 			Chip8TM->updateMap(X, Y, N, spriteDataBool);
+			drawFlag = true;
 			break;
 		}
 		case 0x0:
@@ -121,6 +125,7 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 				// 00E0 (clear screen)
 				case 0x0E0:
 					Chip8TM->resetMap();
+					drawFlag = true;
 					break;
 				// 00EE (pop Stack)
 				case 0x0EE:
@@ -528,7 +533,12 @@ void CPU::updateEmulationComponents() {
 		setSoundTimer(getSoundTimer() - 1);
 	}
 	Chip8SD->resetKeyUps(); // Reset all key ups after 60FPS
-	Chip8TM->Draw(); // Update current contents of the display
+	
+	// Check if frameBuffer has been altered
+	if (drawFlag){
+		Chip8TM->Draw(); // Update current contents of the display
+		drawFlag = false;
+	}
 }
 
 // Controls how many instructions are run per frame
@@ -547,6 +557,7 @@ void CPU::emulationRemainingTime() {
 	else {
 		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
 	}
+	updateEmulationComponents();
 }
 
 // Return current PC Value
