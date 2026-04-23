@@ -20,6 +20,9 @@ class CPU {
 		int emulationFrameRate;
 		int instructionsPerSecond;
 		int instructionsFrameCounter;
+		
+		// Drawing optimisation
+		bool drawFlag;
 
 		// Object pointers needed to work with CPU
 		std::unique_ptr<Memory> RAM;
