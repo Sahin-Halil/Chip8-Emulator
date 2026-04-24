@@ -557,7 +557,6 @@ void CPU::emulationRemainingTime() {
 	else {
 		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
 	}
-	updateEmulationComponents();
 }
 
 // Return current PC Value
