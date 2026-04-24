@@ -536,25 +536,25 @@ void CPU::updateEmulationComponents() {
 	
 	// Check if frameBuffer has been altered
 	if (drawFlag){
+		fpsCounter++; // increase FPS counter
 		Chip8TM->Draw(); // Update current contents of the display
 		drawFlag = false;
 	}
 }
 
 void CPU::emulationRemainingTime() {
-    ipsCounter++;
-	updateEmulationComponents();
-    // Output IPS every second
+    updateEmulationComponents();
+	// Output FPS every second
     if (SDL_GetTicks() - emulationTimeBefore >= 1000) {
-        std::cout << "IPS Count: " << ipsCounter << "\n";
-		totalIPS += ipsCounter;
-        ipsCounter = 0;
+        std::cout << "FPS Count: " << fpsCounter << "\n";
+        totalFPS += fpsCounter;
+        fpsCounter = 0;
         emulationTimeBefore = SDL_GetTicks();
         secondsCollected++;
 
 		// Exit and output average after 60 seconds
         if (secondsCollected >= 60) {
-            std::cout << "Average IPS: " << totalIPS / 60 << "\n";
+            std::cout << "Average FPS: " << totalFPS / 60 << "\n";
             exit(0);
         }
     }
