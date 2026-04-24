@@ -541,22 +541,23 @@ void CPU::updateEmulationComponents() {
 	}
 }
 
-// Controls how many instructions are run per frame
 void CPU::emulationRemainingTime() {
-	// Check how many instructions have been currently executed
-	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
-		// Make program wait until time for current frame is up
-		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
-			continue;
-		}
-		// Update to current timestamps to repeat for next frame
-		emulationTimeBefore = SDL_GetTicks(); 
-		instructionsFrameCounter = 0;
-		updateEmulationComponents(); // Update system components
-	}
-	else {
-		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
-	}
+    ipsCounter++;
+	updateEmulationComponents();
+    // Output IPS every second
+    if (SDL_GetTicks() - emulationTimeBefore >= 1000) {
+        std::cout << "IPS Count: " << ipsCounter << "\n";
+		totalIPS += ipsCounter;
+        ipsCounter = 0;
+        emulationTimeBefore = SDL_GetTicks();
+        secondsCollected++;
+
+		// Exit and output average after 60 seconds
+        if (secondsCollected >= 60) {
+            std::cout << "Average IPS: " << totalIPS / 60 << "\n";
+            exit(0);
+        }
+    }
 }
 
 // Return current PC Value

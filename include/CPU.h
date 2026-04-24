@@ -24,6 +24,10 @@ class CPU {
 		// Drawing optimisation
 		bool drawFlag;
 
+		int totalIPS = 0; 
+		int ipsCounter = 0;
+		int secondsCollected = 0;
+
 		// Object pointers needed to work with CPU
 		std::unique_ptr<Memory> RAM;
 		std::unique_ptr<TileMap> Chip8TM;
