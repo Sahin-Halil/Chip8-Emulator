@@ -572,7 +572,7 @@ void CPU::emulationRemainingTime() {
 
 	// Count how many frames completed every second
 	if (SDL_GetTicks() - lastFPSUpdate >= 1000) {
-		uint64_t avgFrameTime = frameTimeSum / frameCount; // Average frame time in a given second
+		uint64_t avgFrameTime = (frameCount != 0) ? (frameTimeSum / frameCount) : 0; // Average frame time in a given second
 
 		// Add the averages up
 		totalFPS += fpsCounter;
