@@ -20,6 +20,7 @@ class CPU {
 		int emulationFrameRate;
 		int instructionsPerSecond;
 		int instructionsFrameCounter;
+		float frameDuration;
 		
 		// Drawing optimisation
 		bool drawFlag;

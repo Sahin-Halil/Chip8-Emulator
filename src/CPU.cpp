@@ -17,6 +17,7 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	emulationFrameRate = 60;
 	instructionsPerSecond = 500;
 	instructionsFrameCounter = 0;
+	frameDuration = 1000.0f / emulationFrameRate;
 
 	// Draw flag optimisation
 	drawFlag = false;
@@ -546,7 +547,7 @@ void CPU::emulationRemainingTime() {
 	// Check how many instructions have been currently executed
 	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
 		// Make program wait until time for current frame is up
-		while (SDL_GetTicks() - emulationTimeBefore < 1000 / emulationFrameRate) {
+		while (SDL_GetTicks() - emulationTimeBefore < frameDuration) {
 			continue;
 		}
 		// Update to current timestamps to repeat for next frame
