@@ -17,6 +17,7 @@ CPU::CPU(std::unique_ptr<Memory> ram, std::unique_ptr<TileMap> chip8tm, std::sha
 	emulationFrameRate = 60;
 	instructionsPerSecond = 500;
 	instructionsFrameCounter = 0;
+	frameDuration = 1000.0f / emulationFrameRate;
 
 	// Draw flag optimisation
 	drawFlag = false;
@@ -536,28 +537,64 @@ void CPU::updateEmulationComponents() {
 	
 	// Check if frameBuffer has been altered
 	if (drawFlag){
-		fpsCounter++; // increase FPS counter
 		Chip8TM->Draw(); // Update current contents of the display
 		drawFlag = false;
 	}
 }
 
+// Controls how many instructions are run per frame
 void CPU::emulationRemainingTime() {
-    updateEmulationComponents();
-	// Output FPS every second
-    if (SDL_GetTicks() - emulationTimeBefore >= 1000) {
-        std::cout << "FPS Count: " << fpsCounter << "\n";
-        totalFPS += fpsCounter;
-        fpsCounter = 0;
-        emulationTimeBefore = SDL_GetTicks();
-        secondsCollected++;
+	// Check how many instructions have been currently executed
+	if (instructionsFrameCounter >= instructionsPerSecond / emulationFrameRate) { 
+		// Make program wait until time for current frame is up
+		while (SDL_GetTicks() - emulationTimeBefore < frameDuration) {
+			continue;
+		}
+		
+		// Get duration of current frame
+		uint64_t frameTime = SDL_GetTicks() - emulationTimeBefore;
 
-		// Exit and output average after 60 seconds
+		// Update to current timestamps to repeat for next frame
+		emulationTimeBefore = SDL_GetTicks(); 
+		instructionsFrameCounter = 0;
+
+		fpsCounter++;              // counts completed emulation frames
+
+		// accumulate count/frame times
+		frameTimeSum += frameTime;
+		frameCount++;
+
+		updateEmulationComponents(); // Update system components
+	}
+	else {
+		instructionsFrameCounter++; // increment when still have instructions left to execute in current frame
+	}
+
+	// Count how many frames completed every second
+	if (SDL_GetTicks() - lastFPSUpdate >= 1000) {
+		uint64_t avgFrameTime = frameTimeSum / frameCount; // Average frame time in a given second
+
+		// Add the averages up
+		totalFPS += fpsCounter;
+		totalFrameTime += avgFrameTime;
+
+		std::cout << "FPS: " << fpsCounter 
+				<< " | Avg Frame Time: " << avgFrameTime << " ms\n";
+
+		// reset counters
+		fpsCounter = 0;
+		frameTimeSum = 0;
+		frameCount = 0;
+		lastFPSUpdate = SDL_GetTicks();
+
+		// stop and output total average once 60 seconds are done
+		secondsCollected++;
         if (secondsCollected >= 60) {
-            std::cout << "Average FPS: " << totalFPS / 60 << "\n";
-            exit(0);
-        }
-    }
+			std::cout << "Average FPS: " << totalFPS / 60 << "\n";
+			std::cout << "Average Frame Time: " << totalFrameTime / 60 << " ms\n";
+			exit(0);
+		}
+	}
 }
 
 // Return current PC Value

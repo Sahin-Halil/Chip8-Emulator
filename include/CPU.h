@@ -20,13 +20,19 @@ class CPU {
 		int emulationFrameRate;
 		int instructionsPerSecond;
 		int instructionsFrameCounter;
+		float frameDuration;
 		
 		// Drawing optimisation
 		bool drawFlag;
 
-		int totalFPS = 0; 
+		int frameCount = 0;
+		int frameTimeSum  = 0;
 		int fpsCounter = 0;
+		int lastFPSUpdate  = 0;
+		int totalFPS = 0;
+		int totalFrameTime = 0;
 		int secondsCollected = 0;
+		
 
 		// Object pointers needed to work with CPU
 		std::unique_ptr<Memory> RAM;
