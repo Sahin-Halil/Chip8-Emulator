@@ -9,7 +9,7 @@ std::vector<uint8_t> loadROM() {
     
 	// Open ROM as read only binary file
     std::ifstream chip8Game;
-    chip8Game.open("../assets/Game-Files/TETRIS", std::ios::in | std::ios::binary);
+    chip8Game.open("../assets/Game-Files/PONG2", std::ios::in | std::ios::binary);
 
 	// Add contents to array if ROM exists
     if (chip8Game.is_open()) {

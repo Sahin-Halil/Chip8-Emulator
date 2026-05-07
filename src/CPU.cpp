@@ -67,50 +67,6 @@ void CPU::Execute(const std::vector<uint8_t>& currentInstructions) {
 	uint8_t NN = (nibble3 << 4) | nibble4; // The second byte (third and fourth nibbles). An 8-bit immediate number.
 	uint16_t NNN = (nibble2 << 8) | (nibble3 << 4) | nibble4; // The second, third and fourth nibbles. A 12-bit immediate memory address.
 
-	//std::cout << getPC() - 2 << " " << + nibble1 << " " << +nibble2 << " " << +nibble3 << " " << +nibble4 << " " << "\n";
-
-	// instructions done so far
-	// DXYN (display/draw)
-	// 00E0 (clear screen)
-	// 1NNN (jump)
-	// 6XNN (set register VX)
-	// 7XNN (add value to register VX)
-	// ANNN (set index register I)
-
-	// 3XNN (skip Instruction)
-	// 4XNN (skip Instruction)
-	// 5XY0 (skip Instruction)
-	// 8XY5 (store in VX, VX - VY, and modified VF)
-	// 8XY7 (store in VX: VY - VX, and modified VF)
-	// 8XY1 (store in VX: VX or VY)
-	// 8XY2 (store in VX: VX and VY)
-	// 8XY3 (store in VX: VX XOR VY)
-	// 8XYE (legacy version: set VX to VY then shift VX to left, and modified VF)
-	// 8XY6 (legacy version: set VX to VY then shift VX to right, and modified VF)
-	// FX55 (legacy version: takes contents of registers V0-VX, and stores it in memory starting from I (adds VX + 1 to I))
-	// FX65 (legacy version: takes contents of memory starting from I, and stores it in register V0-VX (adds VX + 1 to I))
-	// FX33 (Break a number into digits and add it to memory starting from I)
-
-	// 9XY0 (Skip Instruction)
-	// FX1E (VX is addedd to I)
-	// 00EE (Pop address of the Stack and set it to PC)
-	// 8XY0 (set VX to value of VY)
-	// 8XY4 (store in VX: VX + VY, and modified VF)
-	// 2NNN (push current PC value in Stack, then jump to NNN)
-
-	// EX9E (skip next instruction if lower 4 bits of VX is pressed)
-	// EXA1 (skip next instruction if lower 4 bits of VX is not pressed)
-
-	// FX07 (sets VX to the current value of the delay timer)
-	// FX15 (sets the delay timer to the value in VX)
-	// FX18 (sets the sound timer to the value in VX)
-
-	// 0NNN (jump to NNN)
-	// BNNN (legacy version: jump to NNN + V0) 
-	// CXNN (set VX to bitwise AND between random number and NN)
-	// FX0A (legacy version: Waits for a key press then release and stores that key in VX)
-	// FX29 (legacy version: set I to font address for hex digit in lower nibble of VX)
-
 	// Switch cases, each leading to a different instruction the emulator can execute
 	switch (nibble1) {
 		// DXYN (display/draw)

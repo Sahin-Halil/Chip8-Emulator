@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
       // Create memory object with one pointer
       std::unique_ptr<Memory> RAM = std::make_unique<Memory>();
       RAM->setMemory(gameData); // Load contents of ROM into memory object
-      //RAM->printMemory();
-
+      
       // Shared attributes between CPU and TileMap classes
       std::shared_ptr<CPUTileMapData> Chip8SD1 = std::make_unique<CPUTileMapData>();
       std::shared_ptr<CPUTileMapData> Chip8SD2(Chip8SD1); // Share contents of struct object via shared pointer
