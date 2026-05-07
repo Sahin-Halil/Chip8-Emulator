@@ -67,7 +67,7 @@ TileMap::TileMap(std::shared_ptr<CPUTileMapData> chip8sd) {
 	audioDataLen = 0;
 
 	// Check if audio can be loaded from .wav file
-	if (!SDL_LoadWAV("../assets/Audio-Files/beep-02.wav", &audioSpec, &audioData, &audioDataLen)) {
+	if (!SDL_LoadWAV("../assets/Audio-Files/Chip8.wav", &audioSpec, &audioData, &audioDataLen)) {
 		SDL_Log("Couldn't load audio from .wave file: %s", SDL_GetError());
 		return;
 	}
